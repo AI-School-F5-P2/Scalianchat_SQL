@@ -53,18 +53,18 @@ with cur as cursor:
         "CITY" VARCHAR(255),
         "STATE_ABBREVIATION" VARCHAR(255),
         "VARIABLE_NAME" VARCHAR(255),
-        "YEAR" VARCHAR(4),
-        "VALUE" VARCHAR(255),
+        "YEAR" INTEGER,
+        "VALUE" FLOAT,
         "UNIT" VARCHAR(13),
         "DEFINITION" VARCHAR(1000000)
     )
     """)
 
-    # with open('data/Financial_Data.csv', 'r') as f:
+    # with open('data/datos_actualizados.csv', 'r') as f:
     #     print(next(f))
 
     # Insert data from csv files
-    #insert_data_from_csv(cursor, 'financial_data', 'data/Financial_Data.csv')
+    #insert_data_from_csv(cursor, 'financial_data', 'data/datos_actualizados.csv')
 
     # Update "VALUE" column to double precision
     #cursor.execute("UPDATE financial_data SET \"VALUE\" = NULLIF(\"VALUE\", '')::double precision;")
