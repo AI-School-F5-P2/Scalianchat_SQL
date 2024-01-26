@@ -4,18 +4,30 @@ from dotenv import load_dotenv
 import psycopg2
 from psycopg2 import sql
 
+csv_file_path = 'data/datos_actualizados.csv'
+absolute_path = os.path.abspath(csv_file_path)
+print(absolute_path)
+
 def insert_data_from_csv(cursor, table_name,csv_file_path):
     """
     This function inserts data from a csv file into a table
     """
     try:
         # Open the csv file
-        with open(csv_file_path, 'r', encoding='utf-8-sig') as file:
+        with open(csv_file_path, 'r', encoding='utf-8') as file:
             # Skip the first line (headers)
             next(file)
+            cursor.copy_from(file, 'financial_data', sep=',',
+                             columns=('ENTITY_NAME', 'CITY', 'STATE_ABBREVIATION', 'VARIABLE_NAME', 'YEAR', 'VALUE', 'UNIT', 'DEFINITION'), null='""')
+
+            # cursor.execute(
+            #     """
+            #     COPY financial_data FROM '{csv_file_path}' DELIMITER ',' CSV QUOTE '"';
+            #
+            # """)
 
             # Execute the SQL command to insert the data
-            cursor.copy_from(file, table_name, sep=',', columns=('ENTITY_NAME', 'CITY', 'STATE_ABBREVIATION', 'VARIABLE_NAME', 'YEAR', 'VALUE', 'UNIT', 'DEFINITION'), null='""')
+            #cursor.copy_from(file, table_name, sep=',', columns=('ENTITY_NAME', 'CITY', 'STATE_ABBREVIATION', 'VARIABLE_NAME', 'YEAR', 'VALUE', 'UNIT', 'DEFINITION'), null='""')
     except Exception as e:
         print(f"Error insertando datos en la tabla {table_name} desde archivo CSV {csv_file_path}: {e}")
         # Rollback the transaction to avoid partial data insertion
@@ -60,14 +72,13 @@ with cur as cursor:
     )
     """)
 
-    # with open('data/datos_actualizados.csv', 'r') as f:
-    #     print(next(f))
+    with open(absolute_path, 'r') as f:
+        print(next(f))
+
 
     # Insert data from csv files
-    #insert_data_from_csv(cursor, 'financial_data', 'data/datos_actualizados.csv')
+    #insert_data_from_csv(cursor, 'financial_data', absolute_path)
 
-    # Update "VALUE" column to double precision
-    #cursor.execute("UPDATE financial_data SET \"VALUE\" = NULLIF(\"VALUE\", '')::double precision;")
 
 # Commit the transaction and close the connection
 conn.commit()
