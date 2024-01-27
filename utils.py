@@ -5,8 +5,8 @@ import psycopg2
 from psycopg2 import sql
 
 csv_file_path = 'data/datos_actualizados.csv'
-absolute_path = os.path.abspath(csv_file_path)
-print(absolute_path)
+#absolute_path = os.path.abspath(csv_file_path)
+#print(absolute_path)
 
 def insert_data_from_csv(cursor, table_name,csv_file_path):
     """
@@ -17,17 +17,10 @@ def insert_data_from_csv(cursor, table_name,csv_file_path):
         with open(csv_file_path, 'r', encoding='utf-8') as file:
             # Skip the first line (headers)
             next(file)
-            cursor.copy_from(file, 'financial_data', sep=',',
-                             columns=('ENTITY_NAME', 'CITY', 'STATE_ABBREVIATION', 'VARIABLE_NAME', 'YEAR', 'VALUE', 'UNIT', 'DEFINITION'), null='""')
-
-            # cursor.execute(
-            #     """
-            #     COPY financial_data FROM '{csv_file_path}' DELIMITER ',' CSV QUOTE '"';
-            #
-            # """)
-
-            # Execute the SQL command to insert the data
-            #cursor.copy_from(file, table_name, sep=',', columns=('ENTITY_NAME', 'CITY', 'STATE_ABBREVIATION', 'VARIABLE_NAME', 'YEAR', 'VALUE', 'UNIT', 'DEFINITION'), null='""')
+            cursor.copy_expert(
+                sql="COPY financial_data(\"ENTITY_NAME\", \"CITY\", \"STATE_ABBREVIATION\", \"VARIABLE_NAME\", "
+                    "\"YEAR\", \"VALUE\", \"UNIT\", \"DEFINITION\") FROM STDIN WITH CSV HEADER DELIMITER ','",
+                file=file)
     except Exception as e:
         print(f"Error insertando datos en la tabla {table_name} desde archivo CSV {csv_file_path}: {e}")
         # Rollback the transaction to avoid partial data insertion
@@ -72,12 +65,9 @@ with cur as cursor:
     )
     """)
 
-    with open(absolute_path, 'r') as f:
-        print(next(f))
-
 
     # Insert data from csv files
-    #insert_data_from_csv(cursor, 'financial_data', absolute_path)
+    insert_data_from_csv(cursor, 'financial_data', csv_file_path)
 
 
 # Commit the transaction and close the connection
