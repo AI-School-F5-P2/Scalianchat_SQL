@@ -1,13 +1,13 @@
 import csv
 import os
+import pyodbc
+import pandas as pd
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2 import sql
 import tiktoken
 
 csv_file_path = 'data/datos_actualizados.csv'
-#absolute_path = os.path.abspath(csv_file_path)
-#print(absolute_path)
 
 
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
