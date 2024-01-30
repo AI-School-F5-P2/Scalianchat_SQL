@@ -14,7 +14,7 @@ db_port = os.getenv('AZURE_DB_PORT')
 db_driver = os.getenv('DB_DRIVER')
 
 # Create connection string
-conn_str = f"DRIVER={{db_driver}};SERVER={db_server};DATABASE={db_name};UID={db_user};PWD={db_pass}"
+conn_str = f"DRIVER={{{db_driver}}};SERVER={db_server};DATABASE={db_name};UID={db_user};PWD={db_pass}"
 
 
 
