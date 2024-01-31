@@ -1,3 +1,6 @@
+# Este script es para postgresql.
+# No se va autilizar para el desarrollo en Azure  
+
 from langchain.agents.agent_toolkits import SQLDatabaseToolkit
 from langchain import SQLDatabase
 from langchain_openai import OpenAI
