@@ -23,6 +23,7 @@ csv_path = 'data/datos_Actualizados.csv'
 # Nombre de la tabla
 table_name = 'financial_data'
 
+
 def insert_data_from_csv(cursor, csv_path, table_name):
     try:
         # Lee el CSV en un DataFrame
