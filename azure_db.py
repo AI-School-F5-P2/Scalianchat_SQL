@@ -13,7 +13,7 @@ csv_path = 'data/datos_Actualizados.csv'
 table_name = 'financial_data'
 
 # Load environment variables
-db_driver, db_server, db_name, db_user, db_pass = load_env_var.load_env_variables()
+db_server, db_name, db_user, db_pass, db_port, db_driver = load_env_var.load_env_variables_db()
 
 # Create connection string
 conn_str = f"DRIVER={{{db_driver}}};SERVER={db_server};DATABASE={db_name};UID={db_user};PWD={db_pass}"
@@ -95,8 +95,77 @@ def insert_data_from_csv(connection, csv_file, table):
         print(f'Error al cargar datos: {str(e)}')
 
 
-create_table(conn)  # Create table financial_data if it doesn't exist
-insert_data_from_csv(conn, csv_path, table_name)  # Insert data from csv files
-conn.close()  # close the connection
+def get_schema_representation_any_table(connection):
+    """
+    This function returns a dictionary with the schema representation for the financial_data table
+    :param connection:
+    :return:
+    """
+    """ Get the database schema in a JSON-like format """
+    cursor = connection.cursor()
+
+    # Query to get all table names
+    cursor.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE';")
+    tables = cursor.fetchall()
+
+    db_schema = {}
+
+    for table in tables:
+        table_name = table[0]
+
+        # Query to get column details for each table
+        cursor.execute(
+            f"SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}';")
+        columns = cursor.fetchall()
+
+        column_details = {}
+        for column in columns:
+            column_name = column[0]
+            column_type = column[1]
+            column_details[column_name] = column_type
+
+        db_schema[table_name] = column_details
+
+    return db_schema
+
+def get_schema_representation(connection, target_table):
+    """
+    This function returns a dictionary with the schema representation for the specified table
+    :param connection: pyodbc.Connection object
+    :param target_table: Name of the table to retrieve schema information
+    :return: Dictionary representing the schema of the specified table
+    """
+    cursor = connection.cursor()
+    db_schema = {}
+
+    # Query to get column details for the specified table
+    cursor.execute(
+        f"SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{target_table}';")
+    columns = cursor.fetchall()
+
+    column_details = {}
+    for column in columns:
+        column_name = column[0]
+        column_type = column[1]
+        column_details[column_name] = column_type
+
+    db_schema[table_name] = column_details
+    return db_schema
+
+
+
+
+
+
+# This code will only run when the file is executed directly
+if __name__ == "__main__":
+    create_table(conn)  # Create table financial_data if it doesn't exist
+    insert_data_from_csv(conn, csv_path, table_name)  # Insert data from csv files
+    conn.close()  # close the connection
+
+
+
+
+
 
 

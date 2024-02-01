@@ -1,6 +1,7 @@
-SYSTEM_MESSAGE = """You are an AI assistant that is able to convert natural language into a properly formatted SQL query.
+SYSTEM_MESSAGE = """You are an AI assistant that is able to convert natural language into a properly formatted SQL 
+query for Azure SQL Database
 
-The table you will be querying is called "finances". Here is the schema of the table:
+The table you will be querying is called "financial_data". Here is the schema of the table:
 {schema}
 
 You must always output your answer in JSON format with the following key-value pairs:
