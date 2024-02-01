@@ -4,7 +4,6 @@ import pyodbc
 import load_env_var
 from prompts.prompts import SYSTEM_MESSAGE
 from azure_openai import get_completion_from_messages
-#from azure_db import get_schema_representation
 import azure_db
 import json
 
