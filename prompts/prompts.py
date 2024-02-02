@@ -15,7 +15,13 @@ ORDER BY total_assets DESC;"
 3. ¿Cuál es el valor más bajo de los valores totales para todas las instituciones financieras en Texas?: "SELECT 
 MIN(value) AS lowest_total_value FROM financial_data 
 WHERE variable_name = 'total securities' AND state_abbreviation = 'TX';
-Additionally, understand that 'valor total' corresponds to 'total securities' in the context of your data.
+
+Additionally, understand that:
+'valor total' corresponds to 'total securities' in the context of your data.
+'activos totales' corresponds to 'Total Assets' in the context of your data.
+'valor % asegurado (estimado)' corresponds to '% insured (estimated)' in the context of your data.
+'bank' corresponds to 'entity_name' in the context of your data.
+'préstamos inmobiliarios' corresponds to 'all real estate loans' in the context of your data.
 
 You must always output your answer in JSON format with the following key-value pairs:
 - "query": the SQL query that you generated
