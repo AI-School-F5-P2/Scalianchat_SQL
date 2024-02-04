@@ -1,15 +1,12 @@
 # Script to handle Azure SQL Database
-
 import pyodbc
 import pandas as pd
-# from dotenv import load_dotenv
-# import os
 import load_env_var
 
-# Ruta al archivo CSV
+# CSV file path
 csv_path = 'data/datos_Actualizados.csv'
 
-# Nombre de la tabla
+# Table where data is going to be inserted
 table_name = 'financial_data'
 
 # Load environment variables
@@ -17,11 +14,12 @@ db_server, db_name, db_user, db_pass, db_port, db_driver = load_env_var.load_env
 
 # Create connection string
 conn_str = f"DRIVER={{{db_driver}}};SERVER={db_server};DATABASE={db_name};UID={db_user};PWD={db_pass}"
-# Establecer conexión a la base de datos
+
+# Connect to the database
 conn = pyodbc.connect(conn_str)
 
 
-def create_table(connection):
+def create_table(connection, table_name):
     """
     This function creates a table in the database if it doesn't exist
     :param connection:
@@ -50,10 +48,9 @@ def create_table(connection):
         # Execute creation table query
         cursor.execute(create_table_query)
 
-        # Commit the transaction and close the connection
+        # Commit the transaction
         conn.commit()
-        # conn.close()
-        print("Table financial_data created successfully")
+        print(f'Table {table_name} successfully created')
 
     except Exception as e:
         print(f"Error creating connection to database: {e}")
@@ -90,9 +87,10 @@ def insert_data_from_csv(connection, csv_file, table):
         # Confirma la transacción
         connection.commit()
 
-        print(f'Datos cargados exitosamente en la tabla {table_name}.')
+        print(f'Data successfully inserted in table {table_name}.')
+    
     except Exception as e:
-        print(f'Error al cargar datos: {str(e)}')
+        print(f'Error loading data: {str(e)}')
 
 
 def get_schema_representation_any_table(connection):
@@ -159,7 +157,7 @@ def get_schema_representation(connection, target_table):
 
 # This code will only run when the file is executed directly
 if __name__ == "__main__":
-    create_table(conn)  # Create table financial_data if it doesn't exist
+    create_table(conn, table_name)  # Create table if it doesn't exist
     insert_data_from_csv(conn, csv_path, table_name)  # Insert data from csv files
     conn.close()  # close the connection
 
