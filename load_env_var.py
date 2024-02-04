@@ -5,7 +5,7 @@ import openai
 # Load environment variables
 load_dotenv()
 
-
+# Database environment variables
 def load_env_variables_db():
     db_server = os.getenv('AZURE_DB_SERVER')
     db_name = os.getenv('AZURE_DB_NAME')
@@ -15,7 +15,7 @@ def load_env_variables_db():
     db_driver = os.getenv('DB_DRIVER')
     return db_server, db_name, db_user, db_pass, db_port, db_driver
 
-
+# AzureOpenAI environment variables
 def load_env_variables_openai():
     openai.api_type = "azure"
     openai.api_base = os.getenv("AZURE_OPENAI_API_BASE")

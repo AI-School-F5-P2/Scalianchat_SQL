@@ -24,6 +24,7 @@ def get_completion_from_messages(system_message, user_message, model="test-ejemp
 
 
 if __name__ == "__main__":
+    # Example usage
     system_message = "You are a helpful assistant"
     user_message = "Hello, how are you?"
     print(get_completion_from_messages(system_message, user_message))

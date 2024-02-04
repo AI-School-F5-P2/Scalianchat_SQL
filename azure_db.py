@@ -3,35 +3,46 @@ import pyodbc
 import pandas as pd
 import load_env_var
 
-# CSV file path
-csv_path = 'data/datos_Actualizados.csv'
 
-# Table where data is going to be inserted
-table_name = 'financial_data'
+def establish_db_connection():
+    """
+    This function establishes a connection to the Azure database
+    Return: pyodbc.Connection object
+    """
+    try:
+        # Load environment variables
+        db_server, db_name, db_user, db_pass, db_port, db_driver = load_env_var.load_env_variables_db()
 
-# Load environment variables
-db_server, db_name, db_user, db_pass, db_port, db_driver = load_env_var.load_env_variables_db()
+        # Create connection string
+        conn_str = f'DRIVER={{{db_driver}}};SERVER={db_server},{db_port};DATABASE={db_name};UID={db_user};PWD={db_pass}'
 
-# Create connection string
-conn_str = f"DRIVER={{{db_driver}}};SERVER={db_server};DATABASE={db_name};UID={db_user};PWD={db_pass}"
+        # Connect to the Azure database
+        conn = pyodbc.connect(conn_str)
 
-# Connect to the database
-conn = pyodbc.connect(conn_str)
+        print('Connection to database successfully established.')
+
+        return conn
+
+    except Exception as e:
+        print(f"Error creating connection to database: {e}")
 
 
 def create_table(connection, table_name):
     """
     This function creates a table in the database if it doesn't exist
-    :param connection:
-    :return:
+    Params:
+    -connection: pyodbc.Connection object returned by establish_db_connection function
+    -table_name: name of the table to be created
+    Return: None
     """
     try:
         cursor = connection.cursor()
-        # Create table financial_data if it doesn't exist
-        create_table_query = """
-            IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'financial_data')
+        
+        # Create table if it doesn't exist
+        create_table_query = f"""
+            IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table_name}')
             BEGIN
-                CREATE TABLE financial_data (
+                CREATE TABLE {table_name} (
                     id int NOT NULL PRIMARY KEY IDENTITY(1,1), 
                     entity_name varchar(255),
                     city varchar(255),
@@ -45,48 +56,48 @@ def create_table(connection, table_name):
             END
             """
 
-        # Execute creation table query
+        # Execute create_table_query
         cursor.execute(create_table_query)
 
-        # Commit the transaction
-        conn.commit()
-        print(f'Table {table_name} successfully created')
+        # Commit the transaction and print success message
+        connection.commit()
+        print(f'Table {table_name} successfully created.')
 
     except Exception as e:
-        print(f"Error creating connection to database: {e}")
+        print(f"Error creating {table_name} table: {e}")
 
 
-def insert_data_from_csv(connection, csv_file, table):
+def insert_data_from_csv(connection, csv_file, table_name):
     """
     This function inserts data from a csv file into a table in the database
-    :param connection:
-    :param csv_file:
-    :param table:
-    :return:
+    Params:
+    -connection: pyodbc.Connection object returned by establish_db_connection function
+    -csv_file: path to the csv file with the data to be inserted
+    -table_name: name of the table where data is going to be inserted
+    Return: None
     """
     try:
-        # Lee el CSV en un DataFrame
+        # Load the csv file into a pandas DataFrame
         df = pd.read_csv(csv_file)
 
-        # Crea un cursor
+        # Create a cursor object using the connection
         cursor = connection.cursor()
 
-        # Prepara la consulta SQL con parámetros de inserción masiva
+        # Query to insert data into the table
         insert_query = f"""
-            INSERT INTO {table} 
+            INSERT INTO {table_name} 
             (entity_name, city, state_abbreviation, variable_name, year, value, unit, definition)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
 
-        # Convierte el DataFrame a una lista de tuplas
+        # Convert the DataFrame to a list of tuples
         data_to_insert = [tuple(row) for row in df.values]
 
-        # Ejecuta la consulta de inserción masiva
+        # Execute the insert query
         cursor.executemany(insert_query, data_to_insert)
 
-        # Confirma la transacción
+        # Commit the transaction and print success message
         connection.commit()
-
         print(f'Data successfully inserted in table {table_name}.')
     
     except Exception as e:
@@ -96,10 +107,10 @@ def insert_data_from_csv(connection, csv_file, table):
 def get_schema_representation_any_table(connection):
     """
     This function returns a dictionary with the schema representation for the financial_data table
-    :param connection:
-    :return:
+    Params:
+    -connection: pyodbc.Connection object returned by establish_db_connection function
+    Return: schema representation for the table in a JSON-like format
     """
-    """ Get the database schema in a JSON-like format """
     cursor = connection.cursor()
 
     # Query to get all table names
@@ -126,19 +137,21 @@ def get_schema_representation_any_table(connection):
 
     return db_schema
 
-def get_schema_representation(connection, target_table):
+
+def get_schema_representation(connection, table_name):
     """
     This function returns a dictionary with the schema representation for the specified table
-    :param connection: pyodbc.Connection object
-    :param target_table: Name of the table to retrieve schema information
-    :return: Dictionary representing the schema of the specified table
+    Params:
+    -connection: pyodbc.Connection object obtained from establish_db_connection function
+    -target_table: name of the table to retrieve schema information
+    Return: dictionary representing the schema of the specified table
     """
     cursor = connection.cursor()
     db_schema = {}
 
     # Query to get column details for the specified table
     cursor.execute(
-        f"SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{target_table}';")
+        f"SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}';")
     columns = cursor.fetchall()
 
     column_details = {}
@@ -148,18 +161,23 @@ def get_schema_representation(connection, target_table):
         column_details[column_name] = column_type
 
     db_schema[table_name] = column_details
+    
     return db_schema
 
 
-
-
-
-
-# This code will only run when the file is executed directly
 if __name__ == "__main__":
+    
+    csv_path = 'data/datos_Actualizados.csv' # CSV file path
+    
+    table_name = 'financial_data' # Table where data is going to be inserted
+
+    conn = establish_db_connection()
+    
     create_table(conn, table_name)  # Create table if it doesn't exist
+    
     insert_data_from_csv(conn, csv_path, table_name)  # Insert data from csv files
-    conn.close()  # close the connection
+    
+    conn.close()  # Close the database connection
 
 
 
