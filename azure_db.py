@@ -167,9 +167,9 @@ def get_schema_representation(connection, table_name):
 
 if __name__ == "__main__":
     
-    csv_path = 'data/datos_Actualizados.csv' # CSV file path
+    csv_path = 'data/simplified_data.csv' # CSV file path
     
-    table_name = 'financial_data' # Table where data is going to be inserted
+    table_name = 'simple_data' # Table where data is going to be inserted
 
     conn = establish_db_connection()
     

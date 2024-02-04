@@ -8,7 +8,7 @@ import json
 
 conn = establish_db_connection()
 
-table_name = 'financial_data'
+table_name = 'simple_data'
 
 # Schema representation for the table specified previously
 schemas = get_schema_representation(conn, table_name)
@@ -21,7 +21,7 @@ user_message = st.text_input("Enter your message:")
 
 if user_message:
     # Format the system message with the schema
-    formatted_system_message = SYSTEM_MESSAGE.format(schema=schemas[table_name])
+    formatted_system_message = SYSTEM_MESSAGE.format(table_name=table_name, schema=schemas[table_name])
     print(formatted_system_message)
 
     # Use GPT-3.5-turbo to generate the SQL query
