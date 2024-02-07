@@ -43,48 +43,90 @@ def setup_byod(llm_model: str) -> None:
 setup_byod(llm_model)
 
 
-# Get the text from the microphone
-audio_config = speechsdk.audio.AudioConfig(use_default_microphone=True)
-speech_config.speech_recognition_language="es-ES"
-speech_recognizer = speechsdk.SpeechRecognizer(speech_config, audio_config)
+def get_completion_from_audio(system_message: str):
+    '''
 
-print("Say something...")
-speech_result = speech_recognizer.recognize_once_async().get()
+    '''
+    # Get the text from the microphone
+    audio_config = speechsdk.audio.AudioConfig(use_default_microphone=True)
+    speech_config.speech_recognition_language="es-ES"
+    speech_recognizer = speechsdk.SpeechRecognizer(speech_config, audio_config)
 
-message_text = [{"role": "user", "content": speech_result.text}]
+    print("Say something...")
+    speech_result = speech_recognizer.recognize_once_async().get()
 
-print(message_text[0]['content'])
+    message_text = [{"role": "user", "content": speech_result.text}]
 
-# Get the completion from the OpenAI API
-completion = openai.ChatCompletion.create(
-    messages=message_text,
-    deployment_id=llm_model,
-    dataSources=[  # camelCase is intentional, as this is the format the API expects
-      {
-  "type": "AzureCognitiveSearch",
-  "parameters": {
-    "endpoint": search_endpoint,
-    "indexName": search_index_name,
-    "queryType": "vectorSimpleHybrid",
-    "fieldsMapping": {},
-    "inScope": True,
-    "roleInformation": 'You are a helpful assistant',
-    "strictness": 3,
-    "topNDocuments": 5,
-    "key": search_key,
-    "embeddingDeploymentName": "embedding-scalian"
-  }
-}
-    ],
-    temperature=0,
-    top_p=1,
-    max_tokens=800,
+    print(message_text[0]['content'])
 
-)
-print(completion)
+    # Get the completion from the OpenAI API
+    completion = openai.ChatCompletion.create(
+        messages=message_text,
+        deployment_id=llm_model,
+        dataSources=[  # camelCase is intentional, as this is the format the API expects
+        {
+    "type": "AzureCognitiveSearch",
+    "parameters": {
+        "endpoint": search_endpoint,
+        "indexName": search_index_name,
+        "queryType": "vectorSimpleHybrid",
+        "fieldsMapping": {},
+        "inScope": True,
+        "roleInformation": system_message,
+        "strictness": 3,
+        "topNDocuments": 5,
+        "key": search_key,
+        "embeddingDeploymentName": "embedding-scalian"
+    }
+    }
+        ],
+        temperature=0,
+        top_p=1,
+        max_tokens=800,
+
+    )
+    print(completion)
 
 
-# Play the response on the computer's speaker
-speech_config.speech_synthesis_voice_name = 'es-ES-LaiaNeural'
-speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config)
-speech_synthesizer.speak_text(completion['choices'][0]['message']['content'])
+    # Play the response on the computer's speaker
+    speech_config.speech_synthesis_voice_name = 'es-ES-LaiaNeural'
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config)
+    speech_synthesizer.speak_text(completion['choices'][0]['message']['content'])
+
+
+def get_completion_from_messages(system_message: str, user_message: str):
+    '''
+
+    '''
+    message_text = [{'role': 'system', 'content': system_message}, 
+                {'role': 'user', 'content': f"{user_message}"}]
+
+    # Get the completion from the OpenAI API
+    completion = openai.ChatCompletion.create(
+        messages=message_text,
+        deployment_id=llm_model,
+        dataSources=[  # camelCase is intentional, as this is the format the API expects
+        {
+    "type": "AzureCognitiveSearch",
+    "parameters": {
+        "endpoint": search_endpoint,
+        "indexName": search_index_name,
+        "queryType": "vectorSimpleHybrid",
+        "fieldsMapping": {},
+        "inScope": True,
+        "roleInformation": system_message,
+        "strictness": 3,
+        "topNDocuments": 5,
+        "key": search_key,
+        "embeddingDeploymentName": "embedding-scalian"
+    }
+    }
+        ],
+        temperature=0,
+        top_p=1,
+        max_tokens=800,
+
+    )
+    print(completion)
+
+    return completion['choices'][0]['message']['content']
