@@ -1,6 +1,7 @@
 import openai, requests
 import azure.cognitiveservices.speech as speechsdk
 import load_env_var
+from prompts.prompts import SYSTEM_MESSAGE
 
 # Load environment variables OpenAI
 openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model = load_env_var.load_env_variables_openai()
@@ -19,7 +20,7 @@ def setup_byod(llm_model: str) -> None:
     '''
     Sets up the OpenAI Python SDK to use your own data for the chat endpoint.
     Params:
-    -deployment_id: The deployment ID for the model to use with your own data.
+    -llm_model: the deployment ID for the model to use with your own data.
     To remove this configuration, simply set openai.requestssession to None.
     '''
 
@@ -67,7 +68,7 @@ completion = openai.ChatCompletion.create(
     "queryType": "vectorSimpleHybrid",
     "fieldsMapping": {},
     "inScope": True,
-    "roleInformation": "You are an AI assistant that helps people find information.",
+    "roleInformation": 'You are a helpful assistant',
     "strictness": 3,
     "topNDocuments": 5,
     "key": search_key,
@@ -84,6 +85,6 @@ print(completion)
 
 
 # Play the response on the computer's speaker
-speech_config.speech_synthesis_voice_name = "es-ES-LaiaNeural"
+speech_config.speech_synthesis_voice_name = 'es-ES-LaiaNeural'
 speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config)
 speech_synthesizer.speak_text(completion['choices'][0]['message']['content'])
