@@ -5,6 +5,7 @@ from prompts.prompts import SYSTEM_MESSAGE
 import json
 import matplotlib
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 matplotlib.use('Agg')
 from charts_utils import save_chart_code_to_temp_file
 from rag_openai import get_completion_from_audio, get_completion_from_messages
@@ -69,6 +70,7 @@ if user_message:
                         exec(open(temp_file_name).read())
 
                         # Guarda el gráfico como una imagen
+                        fig = go.Figure()
                         st.plotly_chart(fig, use_container_width=True)
                         #plt.savefig('temp_plot.png')
 
