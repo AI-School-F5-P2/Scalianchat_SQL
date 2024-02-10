@@ -14,7 +14,7 @@ def establish_db_connection():
         db_server, db_name, db_user, db_pass, db_port, db_driver = load_env_var.load_env_variables_db()
 
         # Create connection string
-        conn_str = f'DRIVER={{{db_driver}}};SERVER={db_server},{db_port};DATABASE={db_name};UID={db_user};PWD={db_pass}'
+        conn_str = f'DRIVER={{{db_driver}}};SERVER={db_server},{db_port};DATABASE={db_name};UID={db_user};PWD={db_pass};CONNECTION TIMEOUT=30'
 
         # Connect to the Azure database
         conn = pyodbc.connect(conn_str)
@@ -167,9 +167,9 @@ def get_schema_representation(connection, table_name):
 
 if __name__ == "__main__":
     
-    csv_path = 'data/simplified_data.csv' # CSV file path
+    csv_path = 'data/datos_actualizados.csv' # CSV file path
     
-    table_name = 'simple_data' # Table where data is going to be inserted
+    table_name = 'financial_data' # Table where data is going to be inserted
 
     conn = establish_db_connection()
     
