@@ -83,7 +83,7 @@ def get_completion_from_audio(system_message: str):
         temperature=0,
         top_p=1,
         max_tokens=800,
-
+        seed=42
     )
     print(completion)
 
@@ -125,7 +125,7 @@ def get_completion_from_messages(system_message: str, user_message: str):
         temperature=0,
         top_p=1,
         max_tokens=800,
-
+        seed=42
     )
     print(completion)
 
