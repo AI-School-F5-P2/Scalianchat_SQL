@@ -4,7 +4,7 @@ import load_env_var
 from prompts.prompts import SYSTEM_MESSAGE
 
 # Load environment variables OpenAI
-openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model = load_env_var.load_env_variables_openai()
+openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model, emb_model = load_env_var.load_env_variables_openai()
 
 # Load environment variables Azure Search
 search_endpoint, search_key, search_index_name = load_env_var.load_env_variables_azure_search()
@@ -73,10 +73,10 @@ def get_completion_from_audio(system_message: str):
         "fieldsMapping": {},
         "inScope": True,
         "roleInformation": system_message,
-        "strictness": 3,
+        "strictness": 1,
         "topNDocuments": 5,
         "key": search_key,
-        "embeddingDeploymentName": "embedding-scalian"
+        "embeddingDeploymentName": emb_model
     }
     }
         ],
@@ -115,10 +115,10 @@ def get_completion_from_messages(system_message: str, user_message: str):
         "fieldsMapping": {},
         "inScope": True,
         "roleInformation": system_message,
-        "strictness": 3,
+        "strictness": 1,
         "topNDocuments": 5,
         "key": search_key,
-        "embeddingDeploymentName": "embedding-scalian"
+        "embeddingDeploymentName": emb_model
     }
     }
         ],
