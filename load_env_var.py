@@ -23,7 +23,8 @@ def load_env_variables_openai():
     openai.api_version = os.getenv('AZURE_API_VERSION')
     openai.api_key = os.getenv('AZURE_OPENAI_API_KEY')
     llm_model = os.getenv('AZURE_OPENAI_LLM_MODEL')
-    return openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model
+    emb_model = os.getenv('AZURE_OPENAI_EMBEDDING_MODEL')
+    return openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model, emb_model
 
 
 # AzureSearch environment variables
