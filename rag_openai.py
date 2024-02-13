@@ -42,9 +42,9 @@ def get_search_config(system_message: str) -> list:
 
 def setup_byod(llm_model: str) -> None:
     '''
-    Sets up the OpenAI Python SDK to use your own data for the chat endpoint.
+    Sets up the OpenAI Python SDK to use our own data for the chat endpoint.
     Params:
-    -llm_model: the deployment ID for the model to use with your own data.
+    -llm_model: the deployment ID for the model to use with our own data.
     To remove this configuration, simply set openai.requestssession to None.
     '''
 
@@ -69,7 +69,10 @@ setup_byod(llm_model)
 
 def get_completion_from_audio(system_message: str):
     '''
-
+    Get the completion from the OpenAI API using the microphone as input
+    and speakers as output.
+    Params:
+    -system_message: initial prompt.
     '''
     # Get the text from the microphone
     audio_config = speechsdk.audio.AudioConfig(use_default_microphone=True)
@@ -103,7 +106,12 @@ def get_completion_from_audio(system_message: str):
 
 def get_completion_from_messages(system_message: str, user_message: str):
     '''
-
+    Get the completion from the OpenAI API using the text as input.
+    Params:
+    -system_message: initial prompt.
+    -user_message: user input from streamlit interface.
+    Returns:
+    -completion['choices'][0]['message']['content']: the response from the model.
     '''
     message_text = [{'role': 'system', 'content': system_message}, 
                 {'role': 'user', 'content': f"{user_message}"}]
