@@ -16,6 +16,30 @@ speech_api_key = load_env_var.load_env_variables_azure_speech()
 speech_config = speechsdk.SpeechConfig(subscription=speech_api_key, region='francecentral')
 
 
+def get_search_config(system_message: str) -> list:
+    '''
+    Returns the search configuration for the OpenAI API (RAG pattern).
+    Params:
+    -system_message: initial prompt.
+    Returns:
+    -data_sources: list of dictionaries with the search configuration.
+    '''
+    # camelCase is intentional, as this is the format the API expects
+    data_sources = [{"type": "AzureCognitiveSearch",
+                     "parameters": {"endpoint": search_endpoint, 
+                                    "indexName": search_index_name, 
+                                    "queryType": "vectorSimpleHybrid",
+                                    "fieldsMapping": {"vectorFields": ["categoryVector", "contentVector"], "textFields": ["category", "content"]}, 
+                                    "inScope": True,
+                                    "roleInformation": system_message,
+                                    "strictness": 1,
+                                    "topNDocuments": 5,
+                                    "key": search_key,
+                                    "embeddingDeploymentName": emb_model}}]
+    
+    return data_sources
+
+
 def setup_byod(llm_model: str) -> None:
     '''
     Sets up the OpenAI Python SDK to use your own data for the chat endpoint.
@@ -63,30 +87,13 @@ def get_completion_from_audio(system_message: str):
     completion = openai.ChatCompletion.create(
         messages=message_text,
         deployment_id=llm_model,
-        dataSources=[  # camelCase is intentional, as this is the format the API expects
-        {
-    "type": "AzureCognitiveSearch",
-    "parameters": {
-        "endpoint": search_endpoint,
-        "indexName": search_index_name,
-        "queryType": "vectorSimpleHybrid",
-        "fieldsMapping": {"vectorFields": ["categoryVector", "contentVector"], "textFields": ["category", "content"]},
-        "inScope": True,
-        "roleInformation": system_message,
-        "strictness": 1,
-        "topNDocuments": 5,
-        "key": search_key,
-        "embeddingDeploymentName": emb_model
-    }
-    }
-        ],
+        dataSources=get_search_config(system_message),
         temperature=0,
         top_p=1,
         max_tokens=800,
         seed=42
     )
     print(completion)
-
 
     # Play the response on the computer's speaker
     speech_config.speech_synthesis_voice_name = 'es-ES-LaiaNeural'
@@ -105,23 +112,7 @@ def get_completion_from_messages(system_message: str, user_message: str):
     completion = openai.ChatCompletion.create(
         messages=message_text,
         deployment_id=llm_model,
-        dataSources=[  # camelCase is intentional, as this is the format the API expects
-        {
-    "type": "AzureCognitiveSearch",
-    "parameters": {
-        "endpoint": search_endpoint,
-        "indexName": search_index_name,
-        "queryType": "vectorSimpleHybrid",
-        "fieldsMapping": {"vectorFields": ["categoryVector", "contentVector"], "textFields": ["category", "content"]},
-        "inScope": True,
-        "roleInformation": system_message,
-        "strictness": 1,
-        "topNDocuments": 5,
-        "key": search_key,
-        "embeddingDeploymentName": emb_model
-    }
-    }
-        ],
+        dataSources=get_search_config(system_message),
         temperature=0,
         top_p=1,
         max_tokens=800,
