@@ -1,7 +1,6 @@
 import openai, requests
 import azure.cognitiveservices.speech as speechsdk
 import load_env_var
-from prompts.prompts import SYSTEM_MESSAGE
 
 # Load environment variables OpenAI
 openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model, emb_model = load_env_var.load_env_variables_openai()
@@ -96,6 +95,7 @@ def get_completion_from_audio(system_message: str):
         max_tokens=800,
         seed=42
     )
+    
     print(completion)
 
     # Play the response on the computer's speaker
@@ -113,8 +113,8 @@ def get_completion_from_messages(system_message: str, user_message: str):
     Returns:
     -completion['choices'][0]['message']['content']: the response from the model.
     '''
-    message_text = [{'role': 'system', 'content': system_message}, 
-                {'role': 'user', 'content': f"{user_message}"}]
+    message_text = [{'role': 'system', 'content': system_message},
+                    {'role': 'user', 'content': f"{user_message}"}]
 
     # Get the completion from the OpenAI API
     completion = openai.ChatCompletion.create(
@@ -126,6 +126,32 @@ def get_completion_from_messages(system_message: str, user_message: str):
         max_tokens=800,
         seed=42
     )
+    
     print(completion)
 
     return completion['choices'][0]['message']['content']
+
+
+def generate_plot(system_message_chart, df_chart):
+    '''
+    This function generates a Plotly chart code based on the specified dataframe
+    Params:
+    -system_message_chart: initial prompt for the chart.
+    -df_chart: dataframe to generate the chart code (type df_chart: pd.DataFrame)
+    Returns:
+    the chart code using plotly.
+    '''
+    # Call the LLM model to generate the Plotly chart code
+    response = openai.ChatCompletion.create(
+        deployment_id=llm_model,
+        messages=[{"role": "system", "content": system_message_chart},
+                  {"role": "user", "content": f"Generate a Plotly chart code based on the following dataframe:{df_chart}." 
+                   f"Never include fig.show() in the generated code."}],
+        temperature=0,
+        max_tokens=800,
+        seed = 42,
+    )
+    
+    print(response)
+    
+    return response['choices'][0]['message']['content']
