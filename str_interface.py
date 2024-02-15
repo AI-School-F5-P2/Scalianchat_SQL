@@ -116,15 +116,12 @@ if user_message := st.chat_input("Enter your message to generate SQL and view re
             print(f'The response is: {response} and the type is: {type(response)}')
             
             query = response["sql_code"]
-            print(f'query: {query}')
-            ask_for_chart = response["ask_for_chart"]
-            print(f'chart_code: {chart_code}')
             explanation = response["sql_code_explanation"]
-            print(f'explanation: {explanation}')
+            ask_for_chart = response["ask_for_chart"]
 
             # Display the generated SQL query
             st.write("Generated SQL Query:")
-            st.code(query, language="sql")
+            st.write(query)
 
             # Convert the SQL query to a block format to save it into the history chat for interface
             sql_code_block = f"```sql\n{query}\n```"
@@ -141,7 +138,7 @@ if user_message := st.chat_input("Enter your message to generate SQL and view re
                 st.session_state.messages.append({"role": "assistant", "content": sql_results})
                 st.session_state.messages.append({"role": "assistant", "content": explanation})
 
-                if ask_for_chart:
+                if ask_for_chart == "True":
                     df = sql_results
                     formatted_system_message_chart = SYSTEM_MESSAGE_CHART.format(table_name=table_name, schema=schemas[table_name])
                     
