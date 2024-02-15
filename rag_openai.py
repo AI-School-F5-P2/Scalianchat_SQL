@@ -81,7 +81,9 @@ def get_completion_from_audio(system_message: str):
     print("Say something...")
     speech_result = speech_recognizer.recognize_once_async().get()
 
-    message_text = [{"role": "user", "content": speech_result.text}]
+    user_input = speech_result.text
+
+    message_text = [{"role": "user", "content": user_input}]
 
     print(message_text[0]['content'])
 
@@ -101,7 +103,10 @@ def get_completion_from_audio(system_message: str):
     # Play the response on the computer's speaker
     speech_config.speech_synthesis_voice_name = 'es-ES-LaiaNeural'
     speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config)
-    speech_synthesizer.speak_text(completion['choices'][0]['message']['content'])
+    response_as_text = completion['choices'][0]['message']['content']
+    speech_synthesizer.speak_text(response_as_text)
+
+    return user_input, response_as_text
 
 
 def get_completion_from_messages(system_message: str, user_message: str):
