@@ -93,7 +93,7 @@ def get_completion_from_audio(system_message: str):
         deployment_id=llm_model,
         dataSources=get_search_config(system_message),
         temperature=0,
-        top_p=1,
+        top_p=0.5,
         max_tokens=800,
         seed=42
     )
@@ -127,7 +127,7 @@ def get_completion_from_messages(system_message: str, user_message: str):
         deployment_id=llm_model,
         dataSources=get_search_config(system_message),
         temperature=0,
-        top_p=1,
+        top_p=0.5,
         max_tokens=800,
         seed=42
     )
