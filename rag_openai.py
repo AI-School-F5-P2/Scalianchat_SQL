@@ -32,7 +32,7 @@ def get_search_config(system_message: str) -> list:
                                     "inScope": True,
                                     "roleInformation": system_message,
                                     "strictness": 1,
-                                    "topNDocuments": 5,
+                                    "topNDocuments": 10,
                                     "key": search_key,
                                     "embeddingDeploymentName": emb_model}}]
     
@@ -93,8 +93,8 @@ def get_completion_from_audio(system_message: str):
         deployment_id=llm_model,
         dataSources=get_search_config(system_message),
         temperature=0,
-        top_p=0.5,
-        max_tokens=800,
+        top_p=0.4,
+        max_tokens=500,
         seed=42
     )
     
@@ -127,8 +127,8 @@ def get_completion_from_messages(system_message: str, user_message: str):
         deployment_id=llm_model,
         dataSources=get_search_config(system_message),
         temperature=0,
-        top_p=0.5,
-        max_tokens=800,
+        top_p=0.4,
+        max_tokens=500,
         seed=42
     )
     
