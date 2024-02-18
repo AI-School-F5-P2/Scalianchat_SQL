@@ -4,6 +4,7 @@ import load_env_var
 
 # Load environment variables OpenAI
 openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model, emb_model = load_env_var.load_env_variables_openai()
+chart_model = load_env_var.load_env_variables_models()
 
 # Load environment variables Azure Search
 search_endpoint, search_key, search_index_name = load_env_var.load_env_variables_azure_search()
@@ -148,7 +149,7 @@ def generate_plot(system_message_chart, df_chart):
     '''
     # Call the LLM model to generate the Plotly chart code
     response = openai.ChatCompletion.create(
-        deployment_id=llm_model,
+        deployment_id=chart_model,
         messages=[{"role": "system", "content": system_message_chart},
                   {"role": "user", "content": f"Generate a Plotly chart code based on the following dataframe:{df_chart}." 
                    f"Never include fig.show() in the generated code."}],
