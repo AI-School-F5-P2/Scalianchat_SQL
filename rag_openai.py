@@ -4,7 +4,7 @@ import load_env_var
 
 # Load environment variables OpenAI
 openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model, emb_model = load_env_var.load_env_variables_openai()
-chart_model = load_env_var.load_env_variables_models()
+chart_model, intention_model = load_env_var.load_env_variables_models()
 
 # Load environment variables Azure Search
 search_endpoint, search_key, search_index_name = load_env_var.load_env_variables_azure_search()
@@ -147,7 +147,6 @@ def generate_plot(system_message_chart, df_chart):
     Returns:
     the chart code using plotly.
     '''
-    # Call the LLM model to generate the Plotly chart code
     response = openai.ChatCompletion.create(
         deployment_id=chart_model,
         messages=[{"role": "system", "content": system_message_chart},
@@ -155,6 +154,29 @@ def generate_plot(system_message_chart, df_chart):
                    f"Never include fig.show() in the generated code."}],
         temperature=0,
         max_tokens=800,
+        seed = 42
+    )
+    
+    print(response)
+    
+    return response['choices'][0]['message']['content']
+
+
+def chart_intention(system_message_intention: str, user_message: str):
+    '''
+    This function determines if the user is asking for a chart.
+    Params:
+    -system_message_intention: initial prompt for the system.
+    -user_message: user input from streamlit interface.
+    Returns:
+    True or False as string.
+    '''
+    response = openai.ChatCompletion.create(
+        deployment_id=intention_model,
+        messages=[{"role": "system", "content": system_message_intention},
+                  {"role": "user", "content": user_message}],
+        temperature=0,
+        max_tokens=100,
         seed = 42
     )
     
