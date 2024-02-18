@@ -27,6 +27,12 @@ def load_env_variables_openai():
     return openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model, emb_model
 
 
+# AzureOpenAI environment variables: different model implementations to distribute the load (requests to the API)
+def load_env_variables_models():
+    chart_model = os.getenv('AZURE_OPENAI_MODEL_CHART')
+    return chart_model
+
+
 # AzureSearch environment variables
 def load_env_variables_azure_search():
     search_endpoint = os.getenv('SEARCH_ENDPOINT')
