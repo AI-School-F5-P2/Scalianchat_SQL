@@ -138,7 +138,7 @@ def get_completion_from_messages(system_message: str, user_message: str):
     return completion['choices'][0]['message']['content']
 
 
-def generate_plot(system_message_chart, df_chart):
+def generate_plot(system_message_chart: str, user_message: str):
     '''
     This function generates a Plotly chart code based on the specified dataframe
     Params:
@@ -150,8 +150,7 @@ def generate_plot(system_message_chart, df_chart):
     response = openai.ChatCompletion.create(
         deployment_id=chart_model,
         messages=[{"role": "system", "content": system_message_chart},
-                  {"role": "user", "content": f"Generate a Plotly chart code based on the following dataframe:{df_chart}." 
-                   f"Never include fig.show() in the generated code."}],
+                  {"role": "user", "content": user_message}],
         temperature=0,
         max_tokens=800,
         seed = 42
