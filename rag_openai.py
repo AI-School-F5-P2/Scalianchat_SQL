@@ -155,7 +155,7 @@ def generate_plot(system_message_chart, df_chart):
                    f"Never include fig.show() in the generated code."}],
         temperature=0,
         max_tokens=800,
-        seed = 42,
+        seed = 42
     )
     
     print(response)
