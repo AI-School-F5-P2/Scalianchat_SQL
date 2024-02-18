@@ -1,12 +1,14 @@
 import streamlit as st
 import plotly
 import plotly.graph_objects as go
-from rag_openai import get_completion_from_messages, generate_plot
+from rag_openai import get_completion_from_messages, generate_plot, chart_intention
 import pandas as pd
 from prompts.prompts_sql import SYSTEM_MESSAGE_SQL
 from prompts.prompts_chart import SYSTEM_MESSAGE_CHART
+from prompts.prompts_intention import SYSTEM_MESSAGE_CHART_INTENTION
 import json
 from azure_db import establish_db_connection, get_schema_representation
+from interface_utils import get_sql_code_from_response, get_plotly_code_from_response
 
 # Establish a connection to the database
 conn = establish_db_connection()
@@ -37,7 +39,7 @@ def add_questions(question):
 
 
 # --------------------------------------------
-# Streamlit app
+# Streamlit App
 # --------------------------------------------
 
 # Streamed response interface
@@ -51,13 +53,13 @@ if "openai_model" not in st.session_state:
 if "last_questions" not in st.session_state:
     st.session_state.last_questions = []
 
-# Initialize chat history
+# Initialize chat history for interface
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Mi nombre es Eve, soy tu asistente virtual. "
                                                                   "¿En qué puedo ayudarte?"}]
 
 
-# Display chat messages from history on app rerun
+# Display chat messages from history on APP RERUN
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         
@@ -66,20 +68,11 @@ for message in st.session_state.messages:
             
             # If it's graph code, execute it to obtain the fig object.
             code_plot = message["content"][len(grafico_prefix):].strip()
-            exec(code_plot, globals())
-            fig = go.Figure()
-            
-            # Check if the fig object was created successfully
-            if 'fig' in globals() and isinstance(fig, plotly.graph_objs._figure.Figure):
-                # If the fig object is a valid plot, display it
-                st.plotly_chart(fig)
-            
-            else:
-                # If the fig object was not created successfully, display an error message
-                st.error("Error generating chart.")
+            print(f'{code_plot} from HISTORY HERE')
+            exec(code_plot)
         
         else:
-            # If it's not chart code, display the message content as text.
+            # If it is not chart code, display the message content as text.
             st.write(message["content"])
 
 
@@ -97,77 +90,61 @@ if user_message := st.chat_input("Enter your message to generate SQL and view re
     with st.chat_message("user"):
         st.markdown(user_message.title())
 
-    print(st.session_state.last_questions)
-
     formatted_system_message = SYSTEM_MESSAGE_SQL.format(table_name=table_name, schema=schemas[table_name],
                                                          last_questions=st.session_state.last_questions)
 
-    print(f"formatted_system_message: {formatted_system_message}")
+    print(f"System message for SQL code: {formatted_system_message}")
 
     # Call the LLM model to generate the SQL query
     with st.chat_message("assistant"):
+
+        st.markdown("###### Answer:")
         
         response = get_completion_from_messages(formatted_system_message, user_message)
 
+        st.write(response)
+
         try:
-            #Convert the response to a dictionary
-            response = eval(response)
 
-            print(f'The response is: {response} and the type is: {type(response)}')
-            
-            query = response["sql_code"]
-            explanation = response["sql_code_explanation"]
-            ask_for_chart = response["ask_for_chart"]
-
-            # Display the generated SQL query
-            st.write("Generated SQL Query:")
-            st.write(query)
+            sql_code = get_sql_code_from_response(response)
 
             # Convert the SQL query to a block format to save it into the history chat for interface
-            sql_code_block = f"```sql\n{query}\n```"
+            sql_code_block = f"```sql\n{sql_code}\n```"
             st.session_state.messages.append({"role": "assistant", "content": sql_code_block})
 
             try:
                 # Run the SQL query and display the results
-                sql_results = pd.read_sql_query(query, conn)
-                st.write("Query Results:")
+                sql_results = pd.read_sql_query(sql_code, conn)
+                st.markdown("###### Query Results:")
                 st.dataframe(sql_results)
-                st.write(explanation)
 
                 # Save the dataframe and the explanation into the history chat for the interface
                 st.session_state.messages.append({"role": "assistant", "content": sql_results})
-                st.session_state.messages.append({"role": "assistant", "content": explanation})
 
-                if ask_for_chart == "True":
-                    df = sql_results
-                    formatted_system_message_chart = SYSTEM_MESSAGE_CHART.format(table_name=table_name, schema=schemas[table_name])
+                # Determine if the user is asking for a chart
+                intention = chart_intention(SYSTEM_MESSAGE_CHART_INTENTION, user_message)
+
+                print(f'The intention is: {intention} with type {type(intention)}')
+
+                if intention == "True":
+
+                    formatted_system_message_chart = SYSTEM_MESSAGE_CHART.format(df=sql_results, sql_code=sql_code)
                     
-                    response_chart = generate_plot(formatted_system_message_chart, df)
+                    response_chart = generate_plot(formatted_system_message_chart, user_message)
                             
                     try:
-                        response_chart_json = json.loads(response_chart)
-                        code_plot = response_chart_json.get('code_chart', None)
+                        code_plot = get_plotly_code_from_response(response_chart)
 
-                        # Process only the chart code, removing the header
-                        code_plot_lines = code_plot.split('\n')
-                        start_index = code_plot_lines.index("```python") + 1
-                        end_index = code_plot_lines.index("```", start_index)
-                        code_plot_clean = '\n'.join(code_plot_lines[start_index:end_index])
+                        fig = go.Figure()
 
-                        st.write("Generated Chart:")
-                        exec(code_plot_clean, globals())
+                        st.markdown("###### Generated Chart:")
+                        exec(code_plot)
                         
-                        if 'fig' in globals():
-                            st.plotly_chart(fig, use_container_width=True)
+                        st.plotly_chart(fig, use_container_width=True)
 
-                            grafico_prefix = "[GRAFICO_CODE]"
-
-                            # save the image into the history chat
-                            st.session_state.messages.append({"role": "assistant", "content": f"{grafico_prefix} {code_plot_clean}"})
-                            
-                        else:
-                            print("The generated chart code did not define 'fig' variable.")
-                            
+                        # Save the image into the history chat
+                        st.session_state.messages.append({"role": "assistant", "content": f"{grafico_prefix} {code_plot}"})
+                                                                                                               
                     except json.JSONDecodeError as e:
                         st.write(f"Response: {response_chart} - {e}")
                 
