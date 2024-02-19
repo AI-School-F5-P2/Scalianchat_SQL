@@ -77,9 +77,8 @@ for message in st.session_state.messages:
 
 # Accept user input
 if user_message := st.chat_input("Enter your message to generate SQL and view results."):
-    user_message = user_message.lower()
     
-    # Add user message to chat history
+    # Add user message to chat history interface
     st.session_state.messages.append({"role": "user", "content": user_message})
     
     # Add user message to last questions
@@ -87,7 +86,9 @@ if user_message := st.chat_input("Enter your message to generate SQL and view re
     
     #Display user message in chat message container
     with st.chat_message("user"):
-        st.markdown(user_message.title())
+        st.markdown(user_message)
+    
+    user_message = user_message.lower()
 
     formatted_system_message = SYSTEM_MESSAGE_SQL.format(table_name=table_name, schema=schemas[table_name],
                                                          last_questions=st.session_state.last_questions)
@@ -147,7 +148,7 @@ if user_message := st.chat_input("Enter your message to generate SQL and view re
                         st.write(f"Response: {response_chart} - {e}")
                 
             except  Exception as e:
-                st.write(f"*The SQL query is not valid or the question is out of context.")
+                st.write(f"*La consulta SQL es inválida o la pregunta está fuera de contexto.")
 
         except Exception as e:
             st.write(e)
