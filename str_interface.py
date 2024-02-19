@@ -15,9 +15,7 @@ conn = establish_db_connection()
 
 # Initialize variables
 table_name = 'financial_data'
-dataframe_code_block = ""
-chart_code = ""
-grafico_prefix = "[GRAFICO_CODE]"
+chart_prefix = "[GRAFICO_CODE]"
 
 # Schema representation for the table specified previously
 schemas = get_schema_representation(conn, table_name)
@@ -64,10 +62,10 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         
         # Check if the content of the message is graph code
-        if isinstance(message["content"], str) and message["content"].startswith(grafico_prefix):
+        if message["content"].startswith(chart_prefix):
             
             # If it's graph code, execute it to obtain the fig object.
-            code_plot = message["content"][len(grafico_prefix):].strip()
+            code_plot = message["content"][len(chart_prefix):].strip()
             print(f'{code_plot} from HISTORY HERE')
             exec(code_plot)
         
@@ -97,20 +95,17 @@ if user_message := st.chat_input("Enter your message to generate SQL and view re
 
     # Call the LLM model to generate the SQL query
     with st.chat_message("assistant"):
-
+        
         st.markdown("###### Answer:")
         
         response = get_completion_from_messages(formatted_system_message, user_message)
-
+        
         st.write(response)
 
         try:
-
             sql_code = get_sql_code_from_response(response)
 
-            # Convert the SQL query to a block format to save it into the history chat for interface
-            sql_code_block = f"```sql\n{sql_code}\n```"
-            st.session_state.messages.append({"role": "assistant", "content": sql_code_block})
+            st.session_state.messages.append({"role": "assistant", "content": response})
 
             try:
                 # Run the SQL query and display the results
@@ -123,35 +118,38 @@ if user_message := st.chat_input("Enter your message to generate SQL and view re
 
                 # Determine if the user is asking for a chart
                 intention = chart_intention(SYSTEM_MESSAGE_CHART_INTENTION, user_message)
-
                 print(f'The intention is: {intention} with type {type(intention)}')
 
                 if intention == "True":
-
+                    
                     formatted_system_message_chart = SYSTEM_MESSAGE_CHART.format(df=sql_results, sql_code=sql_code)
                     
-                    response_chart = generate_plot(formatted_system_message_chart, user_message)
-                            
+                    print(formatted_system_message_chart)
+
+                    response_chart = generate_plot(formatted_system_message_chart, user_message)         
+                    
                     try:
                         code_plot = get_plotly_code_from_response(response_chart)
+
+                        print(code_plot)
 
                         fig = go.Figure()
 
                         st.markdown("###### Generated Chart:")
+                        
                         exec(code_plot)
                         
                         st.plotly_chart(fig, use_container_width=True)
 
                         # Save the image into the history chat
-                        st.session_state.messages.append({"role": "assistant", "content": f"{grafico_prefix} {code_plot}"})
+                        st.session_state.messages.append({"role": "assistant", "content": f"{chart_prefix} {code_plot}"})
                                                                                                                
-                    except json.JSONDecodeError as e:
+                    except Exception as e:
                         st.write(f"Response: {response_chart} - {e}")
                 
-            except json.JSONDecodeError as e:
-                st.write(f"An error occurred while connecting to database: {e}")
+            except  Exception as e:
+                st.write(f"*The SQL query is not valid or the question is out of context.")
 
-        except SyntaxError as e:
-            print(f'{e} and its type is {type(e)}')
-            st.write(response)
+        except Exception as e:
+            st.write(e)
             st.session_state.messages.append({"role": "assistant", "content": response})
