@@ -30,7 +30,8 @@ def get_plotly_code_from_response(response: str):
     
     if match:
         plotly_code = match.group(1)
-        return plotly_code.strip()  # Eliminate leading and trailing whitespaces
+        plotly_code = plotly_code.replace('fig.show()', '').strip()
+        return plotly_code  # Eliminate leading and trailing whitespaces
     else:
         print("Plotly code not found in response.")
         return None
