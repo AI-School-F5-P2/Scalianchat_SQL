@@ -15,7 +15,7 @@ conn = establish_db_connection()
 
 # Initialize variables
 table_name = 'financial_data'
-chart_prefix = "[GRAFICO_CODE]"
+chart_prefix = "[CHART_CODE]"
 
 # Schema representation for the table specified previously
 schemas = get_schema_representation(conn, table_name)
@@ -61,13 +61,14 @@ if "messages" not in st.session_state:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         
-        # Check if the content of the message is graph code
-        if message["content"].startswith(chart_prefix):
+        # Check if the content of the message is chart code
+        if isinstance(message["content"], str) and message["content"].startswith(chart_prefix):
             
             # If it's graph code, execute it to obtain the fig object.
             code_plot = message["content"][len(chart_prefix):].strip()
-            print(f'{code_plot} from HISTORY HERE')
+            fig = go.Figure()
             exec(code_plot)
+            st.plotly_chart(fig, use_container_width=True)
         
         else:
             # If it is not chart code, display the message content as text.
@@ -131,9 +132,7 @@ if user_message := st.chat_input("Enter your message to generate SQL and view re
                     try:
                         code_plot = get_plotly_code_from_response(response_chart)
 
-                        print(code_plot)
-
-                        fig = go.Figure()
+                        print(f'Este es el código: {code_plot}')
 
                         st.markdown("###### Generated Chart:")
                         
