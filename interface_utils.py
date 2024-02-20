@@ -1,11 +1,6 @@
 import re
-import openai
 import azure.cognitiveservices.speech as speechsdk
 import load_env_var
-
-# Load environment variables OpenAI
-openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model, emb_model = load_env_var.load_env_variables_openai()
-chart_model, intention_model = load_env_var.load_env_variables_models()
 
 # Load environment variables Azure Speech
 speech_api_key = load_env_var.load_env_variables_azure_speech()
@@ -35,12 +30,13 @@ def get_text_from_speech():
 
 def get_speech_from_text(response: str):
     '''
-    Play the response on the computer's speaker
+    Play the response on the computer's speaker.
+    Params:
+    -response: the response (string) to be played.
     '''
-    # speech_config.speech_synthesis_voice_name = 'es-ES-LaiaNeural'
-    # speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config)
-    # response_as_text = completion['choices'][0]['message']['content']
-    # speech_synthesizer.speak_text(response_as_text)
+    speech_config.speech_synthesis_voice_name = 'es-ES-LaiaNeural'
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config)
+    speech_synthesizer.speak_text(response)
 
 
 def get_sql_code_from_response(response: str):
