@@ -1,5 +1,6 @@
 import streamlit as st
 import plotly
+import openai
 import base64
 from streamlit_float import *
 import plotly.graph_objects as go
@@ -12,6 +13,13 @@ from prompts.prompts_explanation import SYSTEM_MESSAGE_SPEECH
 from azure_db import establish_db_connection, get_schema_representation
 from interface_utils import get_text_from_speech, get_speech_from_text
 from interface_utils import get_sql_code_from_response, get_plotly_code_from_response
+from load_env_var import load_env_variables_openai
+
+# --------------------------------------------
+# Azure OpenAI environment variables
+# --------------------------------------------
+
+openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model, emb_model = load_env_variables_openai()
 
 
 # --------------------------------------------
@@ -97,7 +105,7 @@ def add_questions(question):
 
 
 if "openai_model" not in st.session_state:
-    st.session_state["assistant"] = 'gpt4-0613'
+    st.session_state["assistant"] = llm_model
 
 # Initialize memory for questions and responses
 if "last_questions" not in st.session_state:
@@ -239,7 +247,7 @@ if user_message := st.chat_input("Escribe en lenguaje natural tu consulta SQL") 
                     response = get_explanation_for_speech(system_message_speech, user_message)
                     get_speech_from_text(response)
                     speech_explanation = False
-                    
+
             except  Exception as e:
                 st.write(f"*La consulta SQL es inválida o la pregunta está fuera de contexto.")
 
