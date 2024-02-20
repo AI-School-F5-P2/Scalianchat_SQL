@@ -26,7 +26,7 @@ RUN ACCEPT_EULA=Y apt-get install -y msodbcsql18
 
 
 # Give permissions to the script
-RUN chmod +x test_micro_azure.py
+RUN chmod +x str_interface.py
 
 
 # Run the app
