@@ -22,6 +22,7 @@ from load_env_var import load_env_variables_openai
 openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model, emb_model = load_env_variables_openai()
 
 
+
 # --------------------------------------------
 # Streamlit App
 # --------------------------------------------
