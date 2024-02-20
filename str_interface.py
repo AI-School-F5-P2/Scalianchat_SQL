@@ -3,13 +3,15 @@ import plotly
 import base64
 from streamlit_float import *
 import plotly.graph_objects as go
-from rag_openai import get_completion_from_messages, generate_plot, chart_intention
+from rag_openai import get_completion_from_messages, generate_plot, chart_intention, get_explanation_for_speech
 import pandas as pd
 from prompts.prompts_sql import SYSTEM_MESSAGE_SQL
 from prompts.prompts_chart import SYSTEM_MESSAGE_CHART
 from prompts.prompts_intention import SYSTEM_MESSAGE_CHART_INTENTION
+from prompts.prompts_explanation import SYSTEM_MESSAGE_SPEECH
 from azure_db import establish_db_connection, get_schema_representation
-from interface_utils import get_text_from_speech, get_sql_code_from_response, get_plotly_code_from_response
+from interface_utils import get_text_from_speech, get_speech_from_text
+from interface_utils import get_sql_code_from_response, get_plotly_code_from_response
 
 
 # --------------------------------------------
@@ -231,6 +233,13 @@ if user_message := st.chat_input("Escribe en lenguaje natural tu consulta SQL") 
                     except Exception as e:
                         st.write(f"Response: {response_chart} - {e}")
                 
+                if speech_explanation:
+                    system_message_speech = SYSTEM_MESSAGE_SPEECH.format(sql_code=sql_code, df=sql_results)
+                    print(system_message_speech)
+                    response = get_explanation_for_speech(system_message_speech, user_message)
+                    get_speech_from_text(response)
+                    speech_explanation = False
+                    
             except  Exception as e:
                 st.write(f"*La consulta SQL es inválida o la pregunta está fuera de contexto.")
 
