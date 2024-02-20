@@ -67,55 +67,12 @@ def setup_byod(llm_model: str) -> None:
 setup_byod(llm_model)
 
 
-def get_completion_from_audio(system_message: str):
-    '''
-    Get the completion from the OpenAI API using the microphone as input
-    and speakers as output.
-    Params:
-    -system_message: initial prompt.
-    '''
-    # Get the text from the microphone
-    audio_config = speechsdk.audio.AudioConfig(use_default_microphone=True)
-    speech_config.speech_recognition_language="es-ES"
-    speech_recognizer = speechsdk.SpeechRecognizer(speech_config, audio_config)
-
-    print("Say something...")
-    speech_result = speech_recognizer.recognize_once_async().get()
-
-    user_input = speech_result.text
-
-    message_text = [{"role": "user", "content": user_input}]
-
-    print(message_text[0]['content'])
-
-    # Get the completion from the OpenAI API
-    completion = openai.ChatCompletion.create(
-        messages=message_text,
-        deployment_id=llm_model,
-        dataSources=get_search_config(system_message),
-        temperature=0,
-        top_p=0.4,
-        max_tokens=500,
-        seed=42
-    )
-    
-    print(completion)
-
-    # Play the response on the computer's speaker
-    speech_config.speech_synthesis_voice_name = 'es-ES-LaiaNeural'
-    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config)
-    response_as_text = completion['choices'][0]['message']['content']
-    speech_synthesizer.speak_text(response_as_text)
-
-    return user_input, response_as_text
-
-
 def get_completion_from_messages(system_message: str, user_message: str):
     '''
-    Get the completion from the OpenAI API using the text as input.
+    Get the completion from the OpenAI API using text as input.
     Params:
     -system_message: initial prompt.
-    -user_message: user input from streamlit interface.
+    -user_message: user input from streamlit app.
     Returns:
     -completion['choices'][0]['message']['content']: the response from the model.
     '''
