@@ -238,4 +238,5 @@ if user_message := st.chat_input("Escribe en lenguaje natural tu consulta SQL") 
             st.write(e)
             st.session_state.messages.append({"role": "assistant", "content": response})
 
-footer_container.float("bottom:1rem; right:-8rem; position:fixed;")
+# footer_container.float("bottom:1rem; right:-8rem; position:fixed;")
+footer_container.float("bottom:1rem; right:1rem; position:fixed;")
