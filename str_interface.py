@@ -77,7 +77,7 @@ with col22:
     footer_container = st.container()
     with footer_container:
         st.session_state.micro = st.toggle(":studio_microphone:", key="toggle", help="Encender/Apagar el micrófono")
-    
+   
 
 def add_questions(question):
     """
@@ -113,6 +113,8 @@ if "messages" not in st.session_state:
 # Initialize the toggle state
 if 'micro' not in st.session_state:
     st.session_state.micro = False
+
+speech_explanation = False
 
 
 # --------------------------------------------
@@ -158,6 +160,7 @@ if user_message := st.chat_input("Escribe en lenguaje natural tu consulta SQL") 
     
     if st.session_state.micro:
         user_message =  get_text_from_speech()
+        speech_explanation = True
 
     # Add user message to chat history interface
     st.session_state.messages.append({"role": "user", "content": user_message})
