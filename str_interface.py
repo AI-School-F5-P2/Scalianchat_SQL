@@ -81,7 +81,7 @@ with col22:
 
 def add_questions(question):
     """
-    This function adds a question to the list of last questions
+    This function adds a question to the list of last questions.
     Params:
     -question: Question to add to the list (type question: str)
     """
@@ -115,7 +115,10 @@ if 'micro' not in st.session_state:
     st.session_state.micro = False
 
 
-# Establish a connection to the database
+# --------------------------------------------
+# Database Connection
+# --------------------------------------------
+
 conn = establish_db_connection()
 
 # Initialize variables
@@ -126,7 +129,10 @@ chart_prefix = "[CHART_CODE]"
 schemas = get_schema_representation(conn, table_name)
 
 
+# --------------------------------------------
 # Display chat messages from history on APP RERUN
+# --------------------------------------------
+
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         
@@ -144,7 +150,10 @@ for message in st.session_state.messages:
             st.write(message["content"])
 
 
-# Accept user input
+# --------------------------------------------
+# USER INPUT AND ANSWERS
+# --------------------------------------------
+          
 if user_message := st.chat_input("Escribe en lenguaje natural tu consulta SQL") or st.session_state.micro:
     
     if st.session_state.micro:
