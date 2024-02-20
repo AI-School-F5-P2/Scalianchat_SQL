@@ -31,7 +31,8 @@ def load_env_variables_openai():
 def load_env_variables_models():
     chart_model = os.getenv('AZURE_OPENAI_MODEL_CHART')
     intention_model = os.getenv('AZURE_OPENAI_MODEL_INTENTION')
-    return chart_model, intention_model
+    explanation_model = os.getenv('AZURE_OPENAI_MODEL_EXPLANATION')
+    return chart_model, intention_model, explanation_model
 
 
 # AzureSearch environment variables
