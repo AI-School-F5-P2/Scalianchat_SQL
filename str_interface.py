@@ -248,7 +248,7 @@ if user_message := st.chat_input("Escribe en lenguaje natural tu consulta SQL") 
                     get_speech_from_text(response)
                     speech_explanation = False
 
-            except  Exception as e:
+            except Exception as e:
                 st.write(f"*La consulta SQL es inválida o la pregunta está fuera de contexto.")
 
         except Exception as e:
