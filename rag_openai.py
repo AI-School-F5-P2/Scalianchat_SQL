@@ -4,7 +4,7 @@ import load_env_var
 
 # Load environment variables OpenAI
 openai.api_type, openai.api_base, openai.api_version, openai.api_key, llm_model, emb_model = load_env_var.load_env_variables_openai()
-chart_model, intention_model = load_env_var.load_env_variables_models()
+chart_model, intention_model, explanation_model = load_env_var.load_env_variables_models()
 
 # Load environment variables Azure Search
 search_endpoint, search_key, search_index_name = load_env_var.load_env_variables_azure_search()
@@ -133,6 +133,27 @@ def chart_intention(system_message_intention: str, user_message: str):
                   {"role": "user", "content": user_message}],
         temperature=0,
         max_tokens=100,
+        seed = 42
+    )
+    
+    print(response)
+    
+    return response['choices'][0]['message']['content']
+
+
+def get_explanation_for_speech(system_message_speech: str, user_message: str):
+    '''
+    This function generates an explanation for the results of the query based on the provided information.
+    Params:
+    -system_message_speech: initial prompt for the system.
+    -user_message: user input from streamlit interface.
+    '''
+    response = openai.ChatCompletion.create(
+        deployment_id=explanation_model,
+        messages=[{"role": "system", "content": system_message_speech},
+                  {"role": "user", "content": user_message}],
+        temperature=0,
+        max_tokens=250,
         seed = 42
     )
     
