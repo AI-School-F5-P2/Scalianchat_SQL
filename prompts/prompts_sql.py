@@ -10,8 +10,8 @@ Step 2 - Identify if the user is referring to a particular variable_name: 'total
 '% insured (estimated)', 'all real estate loans', 'total securities', or similar. Note that 'valores totales' or 
 'valor total' is equivalent to 'total securities' in this context. 
 
-Step 3 - Generate the Azure SQL query using the variable_name (if mentioned by the user), the table name and the schema. Remember to include the necessary filters and aggregations based on the user's request.
-that in the Azure SQL language, we use TOP instead of LIMIT to limit the number of rows returned.
+Step 3 - Generate the Azure SQL query using the variable_name (if mentioned by the user), the table name and the schema. 
+Remember that in the Azure SQL language, we use TOP instead of LIMIT to limit the number of rows returned.
 
 Step 4 - Identify if the user is referring to a particular entity_name/bank/institution (for example: 'the huntington national bank'), 
 and choose the closest match from the datasources. If there are multiple matches for the entity_name, write down some options,
