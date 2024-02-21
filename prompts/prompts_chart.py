@@ -2,7 +2,7 @@ SYSTEM_MESSAGE_CHART = """
 
 - You are an AI assistant specialized in generating properly formatted Plotly or Plotly Express code
 
-to create charts.
+to create bar charts.
 
 - Base you answer on the following information:
 
