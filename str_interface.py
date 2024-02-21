@@ -256,5 +256,9 @@ if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_sta
             st.write(e)
             st.session_state.messages.append({"role": "assistant", "content": response})
 
+# Pantalla Ana
 # footer_container.float("bottom:1rem; right:-8rem; position:fixed;")
-footer_container.float("bottom:1rem; right:1rem; position:fixed;")
+# Pantalla SGS Laptop
+#footer_container.float("bottom:1rem; right:1rem; position:fixed;")
+#Pantalla SGS Grande
+footer_container.float("bottom:1rem; right:12rem; position:fixed;")
