@@ -167,7 +167,7 @@ for message in st.session_state.messages:
 # USER INPUT AND ANSWERS
 # --------------------------------------------
           
-if user_message := st.chat_input("Escribe en lenguaje natural tu consulta SQL") or st.session_state.micro:
+if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_state.micro:
     
     if st.session_state.micro:
         user_message =  get_text_from_speech()
