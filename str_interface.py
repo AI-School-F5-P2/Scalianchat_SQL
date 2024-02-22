@@ -1,5 +1,4 @@
 import time
-
 import streamlit as st
 import plotly
 import openai
@@ -138,8 +137,6 @@ with st.spinner("Estableciendo conexión con la base de datos, por favor espere.
     conn = establish_db_connection_retry()
     time.sleep(0)
 
-
-
 # Initialize variables
 table_name = 'financial_data'
 chart_prefix = "[CHART_CODE]"
@@ -194,8 +191,6 @@ if user_message := st.chat_input("Escribe aquí tu consulta."):
     formatted_system_message = SYSTEM_MESSAGE_SQL.format(table_name=table_name, schema=schemas[table_name],
                                                          last_questions=st.session_state.last_questions)
 
-    #print(f"System message for SQL code: {formatted_system_message}")
-
     # Call the LLM model to generate the SQL query
     with st.chat_message("assistant"):
         
@@ -226,7 +221,6 @@ if user_message := st.chat_input("Escribe aquí tu consulta."):
                     intention = chart_intention(SYSTEM_MESSAGE_CHART_INTENTION, user_message)
                 except Exception as e:
                     st.write(f"Lo siento, en estos momentos estamos muy solicitados. Espere un minuto y vuelva a intentarlo.")
-                #print(f'The intention is: {intention} with type {type(intention)}')
 
                 if intention == "True":
 
