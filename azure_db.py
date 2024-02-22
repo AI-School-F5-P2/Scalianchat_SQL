@@ -2,6 +2,35 @@
 import pyodbc
 import pandas as pd
 import load_env_var
+import time
+import streamlit as st
+
+
+def establish_db_connection_retry():
+    max_retries = 5
+    retry_delay = 5
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            # Load environment variables
+            db_server, db_name, db_user, db_pass, db_port, db_driver = load_env_var.load_env_variables_db()
+
+            # Create connection string
+            conn_str = f'DRIVER={{{db_driver}}};SERVER={db_server},{db_port};DATABASE={db_name};UID={db_user};PWD={db_pass};CONNECTION TIMEOUT=30'
+
+            # Connect to the Azure database
+            conn = pyodbc.connect(conn_str)
+            print('Connection to database successfully established.')
+            return conn
+        except Exception as e:
+            print(f"Error creating connection to database: {e}")
+            #st.markdown(f"Por favor, espere. Estableciendo conexión con la BD ({retry_count + 1}/{max_retries})")
+            retry_count += 1
+            time.sleep(retry_delay)
+
+    st.error("No se pudo establecer la conexión con la base de datos. Por favor, recargue la página.")
+    return None
+
 
 
 def establish_db_connection():

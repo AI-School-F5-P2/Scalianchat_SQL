@@ -1,3 +1,5 @@
+import time
+
 import streamlit as st
 import plotly
 import openai
@@ -10,7 +12,7 @@ from prompts.prompts_sql import SYSTEM_MESSAGE_SQL
 from prompts.prompts_chart import SYSTEM_MESSAGE_CHART
 from prompts.prompts_intention import SYSTEM_MESSAGE_CHART_INTENTION
 from prompts.prompts_explanation import SYSTEM_MESSAGE_SPEECH
-from azure_db import establish_db_connection, get_schema_representation
+from azure_db import establish_db_connection, get_schema_representation, establish_db_connection_retry
 from interface_utils import get_text_from_speech, get_speech_from_text
 from interface_utils import get_sql_code_from_response, get_plotly_code_from_response
 from load_env_var import load_env_variables_openai
@@ -31,10 +33,10 @@ about_text = """
 **App para generar consultas SQL y gráficos a partir de lenguaje natural basados en la entrada del usuario.**
 
 **Equipo de Desarrollo:**
-- Ana Milena Gómez Giraldo
-- Karla Lamus
-- Miguel Mendoza
-- Sandra Gómez Santamaría.
+- [Ana Milena Gómez Giraldo (Scrum Master)](https://www.linkedin.com/in/ana-milena-gomez-giraldo/)
+- [Karla Lamus](https://www.linkedin.com/in/karla-lamus/)
+- [Miguel Mendoza](https://www.linkedin.com/in/miguelmendozaespinoza)
+- [Sandra Gómez Santamaría (Product Owner)](https://www.linkedin.com/in/sandragomezs/)
 
 [Repositorio GitHub](https://github.com/AI-School-F5-P2/Scalianchat_SQL.git)
 """
@@ -132,7 +134,11 @@ speech_explanation = False
 # Database Connection
 # --------------------------------------------
 
-conn = establish_db_connection()
+with st.spinner("Estableciendo conexión con la base de datos, por favor espere..."):
+    conn = establish_db_connection_retry()
+    time.sleep(0.5)
+
+
 
 # Initialize variables
 table_name = 'financial_data'
@@ -170,9 +176,18 @@ for message in st.session_state.messages:
 if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_state.micro:
     
     if st.session_state.micro:
-        user_message =  get_text_from_speech()
-        speech_explanation = True
+        try:
+            user_message =  get_text_from_speech()
+            speech_explanation = True
+        except Exception as e:
+            multi_micro = '''
+            (El uso del sistema de voz en la nube se implementará en la próxima versión.  
+                Por favor, apague el microfóno y escriba su consulta. "
+            '''
+            st.markdown(multi_micro)
+            st.session_state.micro = False
 
+    print(f"User message: {user_message}")
     # Add user message to chat history interface
     st.session_state.messages.append({"role": "user", "content": user_message})
     
@@ -206,49 +221,58 @@ if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_sta
 
             try:
                 # Run the SQL query and display the results
-                sql_results = pd.read_sql_query(sql_code, conn)
-                st.markdown("###### Query Results:")
-                st.dataframe(sql_results)
+                try:
+                    sql_results = pd.read_sql_query(sql_code, conn)
+                    st.markdown("###### Query Results:")
+                    st.dataframe(sql_results)
 
-                # Save the dataframe and the explanation into the history chat for the interface
-                st.session_state.messages.append({"role": "assistant", "content": sql_results})
+                    # Save the dataframe and the explanation into the history chat for the interface
+                    st.session_state.messages.append({"role": "assistant", "content": sql_results})
 
-                # Determine if the user is asking for a chart
-                intention = chart_intention(SYSTEM_MESSAGE_CHART_INTENTION, user_message)
-                print(f'The intention is: {intention} with type {type(intention)}')
+                    # Determine if the user is asking for a chart
+                    intention = chart_intention(SYSTEM_MESSAGE_CHART_INTENTION, user_message)
+                    print(f'The intention is: {intention} with type {type(intention)}')
 
-                if intention == "True":
+                    if intention == "True":
                     
-                    formatted_system_message_chart = SYSTEM_MESSAGE_CHART.format(df=sql_results, sql_code=sql_code)
+                        formatted_system_message_chart = SYSTEM_MESSAGE_CHART.format(df=sql_results, sql_code=sql_code)
                     
-                    print(formatted_system_message_chart)
+                        print(formatted_system_message_chart)
 
-                    response_chart = generate_plot(formatted_system_message_chart, user_message)         
+                        response_chart = generate_plot(formatted_system_message_chart, user_message)
                     
-                    try:
-                        code_plot = get_plotly_code_from_response(response_chart)
+                        try:
+                            code_plot = get_plotly_code_from_response(response_chart)
 
-                        print(f'Este es el código: {code_plot}')
+                            print(f'Este es el código: {code_plot}')
 
-                        st.markdown("###### Generated Chart:")
+                            st.markdown("###### Generated Chart:")
                         
-                        exec(code_plot)
+                            exec(code_plot)
                         
-                        st.plotly_chart(fig, use_container_width=True)
+                            st.plotly_chart(fig, use_container_width=True)
 
-                        # Save the image into the history chat
-                        st.session_state.messages.append({"role": "assistant", "content": f"{chart_prefix} {code_plot}"})
+                            # Save the image into the history chat
+                            st.session_state.messages.append({"role": "assistant", "content": f"{chart_prefix} {code_plot}"})
                                                                                                                
-                    except Exception as e:
-                        st.write(f"Response: {response_chart} - {e}")
+                        except Exception as e:
+                            st.write(f"Response: {response_chart} - {e}")
                 
-                if speech_explanation:
-                    system_message_speech = SYSTEM_MESSAGE_SPEECH.format(sql_code=sql_code, df=sql_results)
-                    print(system_message_speech)
-                    response = get_explanation_for_speech(system_message_speech, user_message)
-                    get_speech_from_text(response)
-                    speech_explanation = False
+                    if speech_explanation:
+                        system_message_speech = SYSTEM_MESSAGE_SPEECH.format(sql_code=sql_code, df=sql_results)
+                        print(system_message_speech)
+                        response = get_explanation_for_speech(system_message_speech, user_message)
+                        get_speech_from_text(response)
+                        speech_explanation = False
 
+                except ZeroDivisionError as e:
+                    st.write(f"*La consulta SQL no ha devuelto resultados.")
+                    st.session_state.messages.append({"role": "assistant", "content": f"*La consulta SQL no ha devuelto resultados."})
+
+            except ZeroDivisionError as e:
+                st.write(f"*La consulta SQL no ha devuelto resultados.")
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": f"*La consulta SQL no ha devuelto resultados."})
             except Exception as e:
                 st.write(f"*La consulta SQL es inválida o la pregunta está fuera de contexto.")
 

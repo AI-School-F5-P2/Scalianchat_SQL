@@ -1,6 +1,6 @@
 version: '3.10'
 services:
-  chat_sql_app:
+  chat_sql:
     build:
       context: .
       dockerfile: Dockerfile
