@@ -194,25 +194,27 @@ if user_message := st.chat_input("Escribe aquí tu consulta."):
     formatted_system_message = SYSTEM_MESSAGE_SQL.format(table_name=table_name, schema=schemas[table_name],
                                                          last_questions=st.session_state.last_questions)
 
-    print(f"System message for SQL code: {formatted_system_message}")
+    #print(f"System message for SQL code: {formatted_system_message}")
 
     # Call the LLM model to generate the SQL query
     with st.chat_message("assistant"):
         
         st.markdown("###### Answer:")
-        
-        response = get_completion_from_messages(formatted_system_message, user_message)
-        
-        st.write(response)
+
+        try:
+            response = get_completion_from_messages(formatted_system_message, user_message)
+            st.write(response)
+        except Exception as e:
+            st.write(f"Lo siento, en estos momentos estamos muy solicitados. Espere un minuto y vuelva a intentarlo.")
 
         try:
             sql_code = get_sql_code_from_response(response)
-
             st.session_state.messages.append({"role": "assistant", "content": response})
 
             try:
                 # Run the SQL query and display the results
                 sql_results = pd.read_sql_query(sql_code, conn)
+                print(f"SQL Results: {sql_results}")
                 st.markdown("###### Query Results:")
                 st.dataframe(sql_results)
 
@@ -220,8 +222,11 @@ if user_message := st.chat_input("Escribe aquí tu consulta."):
                 st.session_state.messages.append({"role": "assistant", "content": sql_results})
 
                 # Determine if the user is asking for a chart
-                intention = chart_intention(SYSTEM_MESSAGE_CHART_INTENTION, user_message)
-                print(f'The intention is: {intention} with type {type(intention)}')
+                try:
+                    intention = chart_intention(SYSTEM_MESSAGE_CHART_INTENTION, user_message)
+                except Exception as e:
+                    st.write(f"Lo siento, en estos momentos estamos muy solicitados. Espere un minuto y vuelva a intentarlo.")
+                #print(f'The intention is: {intention} with type {type(intention)}')
 
                 if intention == "True":
 
@@ -229,7 +234,12 @@ if user_message := st.chat_input("Escribe aquí tu consulta."):
 
                     print(formatted_system_message_chart)
 
-                    response_chart = generate_plot(formatted_system_message_chart, user_message)
+                    try:
+                        response_chart = generate_plot(formatted_system_message_chart, user_message)
+                    except Exception as e:
+                        st.write(
+                            f"Lo siento, en estos momentos estamos muy solicitados. "
+                            f"Espere un minuto y vuelva a intentarlo.")
 
                     try:
                         code_plot = get_plotly_code_from_response(response_chart)
@@ -251,16 +261,17 @@ if user_message := st.chat_input("Escribe aquí tu consulta."):
                 if speech_explanation:
                     system_message_speech = SYSTEM_MESSAGE_SPEECH.format(sql_code=sql_code, df=sql_results)
                     print(system_message_speech)
-                    response = get_explanation_for_speech(system_message_speech, user_message)
+                    try:
+                        response = get_explanation_for_speech(system_message_speech, user_message)
+                    except Exception as e:
+                        st.write(
+                            f"Lo siento, en estos momentos estamos muy solicitados. "
+                            f"Espere un minuto y vuelva a intentarlo.")
                     get_speech_from_text(response)
                     speech_explanation = False
 
-            except ZeroDivisionError as e:
-                st.write(f"*Se ha dividido por cero.")
-                st.session_state.messages.append(
-                    {"role": "assistant", "content": f"*La consulta SQL no ha devuelto resultados."})
             except Exception as e:
-                st.write(f"*La consulta SQL es inválida o la pregunta está fuera de contexto.")
+                st.write(f"*La consulta SQL es inválida, es una división por cero o la pregunta está fuera de contexto.")
 
         except Exception as e:
             st.write(e)
