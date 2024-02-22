@@ -89,8 +89,6 @@ def get_completion_from_messages(system_message: str, user_message: str):
         max_tokens=500,
         seed=42
     )
-    
-    print(completion)
 
     return completion['choices'][0]['message']['content']
 
@@ -113,8 +111,7 @@ def generate_plot(system_message_chart: str, user_message: str):
         seed = 42
     )
     
-    print(response)
-    
+
     return response['choices'][0]['message']['content']
 
 
@@ -135,9 +132,7 @@ def chart_intention(system_message_intention: str, user_message: str):
         max_tokens=100,
         seed = 42
     )
-    
-    print(response)
-    
+
     return response['choices'][0]['message']['content']
 
 
@@ -156,7 +151,5 @@ def get_explanation_for_speech(system_message_speech: str, user_message: str):
         max_tokens=250,
         seed = 42
     )
-    
-    print(response)
-    
+
     return response['choices'][0]['message']['content']

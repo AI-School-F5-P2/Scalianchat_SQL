@@ -248,6 +248,7 @@ if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_sta
 
                 if speech_explanation:
                     system_message_speech = SYSTEM_MESSAGE_SPEECH.format(sql_code=sql_code, df=sql_results)
+
                     try:
                         response = get_explanation_for_speech(system_message_speech, user_message)
                     except Exception as e:
