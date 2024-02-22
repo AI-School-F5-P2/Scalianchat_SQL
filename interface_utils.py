@@ -1,6 +1,7 @@
 import re
 import azure.cognitiveservices.speech as speechsdk
 import load_env_var
+import streamlit as st
 
 # Load environment variables Azure Speech
 speech_api_key = load_env_var.load_env_variables_azure_speech()
@@ -23,9 +24,9 @@ def get_text_from_speech():
 
     user_input = speech_result.text
 
-    print(user_input)
-
     return user_input
+
+
 
 
 def get_speech_from_text(response: str):

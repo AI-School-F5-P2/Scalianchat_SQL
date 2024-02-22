@@ -7,7 +7,7 @@ import streamlit as st
 
 
 def establish_db_connection_retry():
-    max_retries = 5
+    max_retries = 10
     retry_delay = 5
     retry_count = 0
     while retry_count < max_retries:

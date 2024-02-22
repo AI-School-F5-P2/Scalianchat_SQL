@@ -176,18 +176,10 @@ for message in st.session_state.messages:
 if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_state.micro:
     
     if st.session_state.micro:
-        try:
-            user_message =  get_text_from_speech()
-            speech_explanation = True
-        except Exception as e:
-            multi_micro = '''
-            (El uso del sistema de voz en la nube se implementará en la próxima versión.  
-                Por favor, apague el microfóno y escriba su consulta. "
-            '''
-            st.markdown(multi_micro)
-            st.session_state.micro = False
+        user_message =  get_text_from_speech()
+        speech_explanation = True
 
-    print(f"User message: {user_message}")
+    print(f"User message fuera del try: {user_message}")
     # Add user message to chat history interface
     st.session_state.messages.append({"role": "user", "content": user_message})
     
