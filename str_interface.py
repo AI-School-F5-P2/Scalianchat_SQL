@@ -1,5 +1,4 @@
 import time
-
 import streamlit as st
 import plotly
 import openai
@@ -136,9 +135,7 @@ speech_explanation = False
 
 with st.spinner("Estableciendo conexión con la base de datos, por favor espere..."):
     conn = establish_db_connection_retry()
-    time.sleep(0.5)
-
-
+    time.sleep(0)
 
 # Initialize variables
 table_name = 'financial_data'
@@ -179,7 +176,6 @@ if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_sta
         user_message =  get_text_from_speech()
         speech_explanation = True
 
-    print(f"User message fuera del try: {user_message}")
     # Add user message to chat history interface
     st.session_state.messages.append({"role": "user", "content": user_message})
     
@@ -195,78 +191,73 @@ if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_sta
     formatted_system_message = SYSTEM_MESSAGE_SQL.format(table_name=table_name, schema=schemas[table_name],
                                                          last_questions=st.session_state.last_questions)
 
-    print(f"System message for SQL code: {formatted_system_message}")
-
     # Call the LLM model to generate the SQL query
     with st.chat_message("assistant"):
         
         st.markdown("###### Answer:")
-        
-        response = get_completion_from_messages(formatted_system_message, user_message)
-        
-        st.write(response)
+        try:
+            response = get_completion_from_messages(formatted_system_message, user_message)
+            st.write(response)
+        except Exception as e:
+            st.write(f"Lo siento, en estos momentos estamos muy solicitados. Espere un minuto y vuelva a intentarlo.")
 
         try:
             sql_code = get_sql_code_from_response(response)
-
             st.session_state.messages.append({"role": "assistant", "content": response})
 
-            try:
                 # Run the SQL query and display the results
+            try:
+                sql_results = pd.read_sql_query(sql_code, conn)
+                st.markdown("###### Query Results:")
+                st.dataframe(sql_results)
+
+                # Save the dataframe and the explanation into the history chat for the interface
+                st.session_state.messages.append({"role": "assistant", "content": sql_results})
+
+                # Determine if the user is asking for a chart
                 try:
-                    sql_results = pd.read_sql_query(sql_code, conn)
-                    st.markdown("###### Query Results:")
-                    st.dataframe(sql_results)
-
-                    # Save the dataframe and the explanation into the history chat for the interface
-                    st.session_state.messages.append({"role": "assistant", "content": sql_results})
-
-                    # Determine if the user is asking for a chart
                     intention = chart_intention(SYSTEM_MESSAGE_CHART_INTENTION, user_message)
-                    print(f'The intention is: {intention} with type {type(intention)}')
+                except Exception as e:
+                    st.write(f"Lo siento, en estos momentos estamos muy solicitados. "
+                             f"Espere un minuto y vuelva a intentarlo.")
 
-                    if intention == "True":
-                    
-                        formatted_system_message_chart = SYSTEM_MESSAGE_CHART.format(df=sql_results, sql_code=sql_code)
-                    
-                        print(formatted_system_message_chart)
+                if intention == "True":
 
+                    formatted_system_message_chart = SYSTEM_MESSAGE_CHART.format(df=sql_results, sql_code=sql_code)
+
+                    try:
                         response_chart = generate_plot(formatted_system_message_chart, user_message)
-                    
-                        try:
-                            code_plot = get_plotly_code_from_response(response_chart)
+                    except Exception as e:
+                        st.write(f"Lo siento, en estos momentos estamos muy solicitados. "
+                                 f"Espere un minuto y vuelva a intentarlo.")
 
-                            print(f'Este es el código: {code_plot}')
+                    try:
+                        code_plot = get_plotly_code_from_response(response_chart)
 
-                            st.markdown("###### Generated Chart:")
-                        
-                            exec(code_plot)
-                        
-                            st.plotly_chart(fig, use_container_width=True)
+                        st.markdown("###### Generated Chart:")
 
-                            # Save the image into the history chat
-                            st.session_state.messages.append({"role": "assistant", "content": f"{chart_prefix} {code_plot}"})
-                                                                                                               
-                        except Exception as e:
-                            st.write(f"Response: {response_chart} - {e}")
-                
-                    if speech_explanation:
-                        system_message_speech = SYSTEM_MESSAGE_SPEECH.format(sql_code=sql_code, df=sql_results)
-                        print(system_message_speech)
+                        exec(code_plot)
+
+                        st.plotly_chart(fig, use_container_width=True)
+
+                        # Save the image into the history chat
+                        st.session_state.messages.append({"role": "assistant", "content": f"{chart_prefix} {code_plot}"})
+
+                    except Exception as e:
+                        st.write(f"Response: {response_chart} - {e}")
+
+                if speech_explanation:
+                    system_message_speech = SYSTEM_MESSAGE_SPEECH.format(sql_code=sql_code, df=sql_results)
+                    try:
                         response = get_explanation_for_speech(system_message_speech, user_message)
-                        get_speech_from_text(response)
-                        speech_explanation = False
+                    except Exception as e:
+                        st.write(f"Lo siento, en estos momentos estamos muy solicitados. "
+                                 f"Espere un minuto y vuelva a intentarlo.")
+                    get_speech_from_text(response)
+                    speech_explanation = False
 
-                except ZeroDivisionError as e:
-                    st.write(f"*La consulta SQL no ha devuelto resultados.")
-                    st.session_state.messages.append({"role": "assistant", "content": f"*La consulta SQL no ha devuelto resultados."})
-
-            except ZeroDivisionError as e:
-                st.write(f"*La consulta SQL no ha devuelto resultados.")
-                st.session_state.messages.append(
-                    {"role": "assistant", "content": f"*La consulta SQL no ha devuelto resultados."})
             except Exception as e:
-                st.write(f"*La consulta SQL es inválida o la pregunta está fuera de contexto.")
+                st.write(f"*La consulta SQL es inválida, división por cero o la pregunta está fuera de contexto.")
 
         except Exception as e:
             st.write(e)
@@ -275,6 +266,6 @@ if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_sta
 # Pantalla Ana
 # footer_container.float("bottom:1rem; right:-8rem; position:fixed;")
 # Pantalla SGS Laptop
-#footer_container.float("bottom:1rem; right:1rem; position:fixed;")
+footer_container.float("bottom:1rem; right:1rem; position:fixed;")
 #Pantalla SGS Grande
-footer_container.float("bottom:1rem; right:12rem; position:fixed;")
+#footer_container.float("bottom:1rem; right:12rem; position:fixed;")
