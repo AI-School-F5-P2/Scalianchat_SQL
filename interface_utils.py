@@ -1,7 +1,7 @@
 import re
 import azure.cognitiveservices.speech as speechsdk
 import load_env_var
-import streamlit as st
+
 
 # Load environment variables Azure Speech
 speech_api_key = load_env_var.load_env_variables_azure_speech()

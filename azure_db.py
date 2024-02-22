@@ -23,8 +23,6 @@ def establish_db_connection_retry():
             print('Connection to database successfully established.')
             return conn
         except Exception as e:
-            print(f"Error creating connection to database: {e}")
-            #st.markdown(f"Por favor, espere. Estableciendo conexión con la BD ({retry_count + 1}/{max_retries})")
             retry_count += 1
             time.sleep(retry_delay)
 

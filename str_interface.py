@@ -87,9 +87,9 @@ with col22:
     st.write("")
 
 # Create footer container for the microphone
-    footer_container = st.container()
-    with footer_container:
-        st.session_state.micro = st.toggle(":studio_microphone:", key="toggle", help="Encender/Apagar el micrófono")
+#     footer_container = st.container()
+#     with footer_container:
+#         st.session_state.micro = st.toggle(":studio_microphone:", key="toggle", help="Encender/Apagar el micrófono")
    
 
 def add_questions(question):
@@ -136,7 +136,7 @@ speech_explanation = False
 
 with st.spinner("Estableciendo conexión con la base de datos, por favor espere..."):
     conn = establish_db_connection_retry()
-    time.sleep(0.5)
+    time.sleep(0)
 
 
 
@@ -173,13 +173,12 @@ for message in st.session_state.messages:
 # USER INPUT AND ANSWERS
 # --------------------------------------------
           
-if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_state.micro:
+if user_message := st.chat_input("Escribe aquí tu consulta."):
     
-    if st.session_state.micro:
-        user_message =  get_text_from_speech()
-        speech_explanation = True
+    # if st.session_state.micro:
+    #     user_message =  get_text_from_speech()
+    #     speech_explanation = True
 
-    print(f"User message fuera del try: {user_message}")
     # Add user message to chat history interface
     st.session_state.messages.append({"role": "user", "content": user_message})
     
@@ -213,56 +212,51 @@ if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_sta
 
             try:
                 # Run the SQL query and display the results
-                try:
-                    sql_results = pd.read_sql_query(sql_code, conn)
-                    st.markdown("###### Query Results:")
-                    st.dataframe(sql_results)
+                sql_results = pd.read_sql_query(sql_code, conn)
+                st.markdown("###### Query Results:")
+                st.dataframe(sql_results)
 
-                    # Save the dataframe and the explanation into the history chat for the interface
-                    st.session_state.messages.append({"role": "assistant", "content": sql_results})
+                # Save the dataframe and the explanation into the history chat for the interface
+                st.session_state.messages.append({"role": "assistant", "content": sql_results})
 
-                    # Determine if the user is asking for a chart
-                    intention = chart_intention(SYSTEM_MESSAGE_CHART_INTENTION, user_message)
-                    print(f'The intention is: {intention} with type {type(intention)}')
+                # Determine if the user is asking for a chart
+                intention = chart_intention(SYSTEM_MESSAGE_CHART_INTENTION, user_message)
+                print(f'The intention is: {intention} with type {type(intention)}')
 
-                    if intention == "True":
-                    
-                        formatted_system_message_chart = SYSTEM_MESSAGE_CHART.format(df=sql_results, sql_code=sql_code)
-                    
-                        print(formatted_system_message_chart)
+                if intention == "True":
 
-                        response_chart = generate_plot(formatted_system_message_chart, user_message)
-                    
-                        try:
-                            code_plot = get_plotly_code_from_response(response_chart)
+                    formatted_system_message_chart = SYSTEM_MESSAGE_CHART.format(df=sql_results, sql_code=sql_code)
 
-                            print(f'Este es el código: {code_plot}')
+                    print(formatted_system_message_chart)
 
-                            st.markdown("###### Generated Chart:")
-                        
-                            exec(code_plot)
-                        
-                            st.plotly_chart(fig, use_container_width=True)
+                    response_chart = generate_plot(formatted_system_message_chart, user_message)
 
-                            # Save the image into the history chat
-                            st.session_state.messages.append({"role": "assistant", "content": f"{chart_prefix} {code_plot}"})
-                                                                                                               
-                        except Exception as e:
-                            st.write(f"Response: {response_chart} - {e}")
-                
-                    if speech_explanation:
-                        system_message_speech = SYSTEM_MESSAGE_SPEECH.format(sql_code=sql_code, df=sql_results)
-                        print(system_message_speech)
-                        response = get_explanation_for_speech(system_message_speech, user_message)
-                        get_speech_from_text(response)
-                        speech_explanation = False
+                    try:
+                        code_plot = get_plotly_code_from_response(response_chart)
 
-                except ZeroDivisionError as e:
-                    st.write(f"*La consulta SQL no ha devuelto resultados.")
-                    st.session_state.messages.append({"role": "assistant", "content": f"*La consulta SQL no ha devuelto resultados."})
+                        print(f'Este es el código: {code_plot}')
+
+                        st.markdown("###### Generated Chart:")
+
+                        exec(code_plot)
+
+                        st.plotly_chart(fig, use_container_width=True)
+
+                        # Save the image into the history chat
+                        st.session_state.messages.append({"role": "assistant", "content": f"{chart_prefix} {code_plot}"})
+
+                    except Exception as e:
+                        st.write(f"Response: {response_chart} - {e}")
+
+                if speech_explanation:
+                    system_message_speech = SYSTEM_MESSAGE_SPEECH.format(sql_code=sql_code, df=sql_results)
+                    print(system_message_speech)
+                    response = get_explanation_for_speech(system_message_speech, user_message)
+                    get_speech_from_text(response)
+                    speech_explanation = False
 
             except ZeroDivisionError as e:
-                st.write(f"*La consulta SQL no ha devuelto resultados.")
+                st.write(f"*Se ha dividido por cero.")
                 st.session_state.messages.append(
                     {"role": "assistant", "content": f"*La consulta SQL no ha devuelto resultados."})
             except Exception as e:
@@ -277,4 +271,4 @@ if user_message := st.chat_input("Escribe aquí tu consulta.") or st.session_sta
 # Pantalla SGS Laptop
 #footer_container.float("bottom:1rem; right:1rem; position:fixed;")
 #Pantalla SGS Grande
-footer_container.float("bottom:1rem; right:12rem; position:fixed;")
+#footer_container.float("bottom:1rem; right:12rem; position:fixed;")
