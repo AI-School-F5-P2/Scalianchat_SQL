@@ -1,4 +1,4 @@
-![EvaSQL](https://github.com/AI-School-F5-P2/Scalianchat_SQL/blob/main/images/eva_01.gif)
+<img src="https://github.com/AI-School-F5-P2/Scalianchat_SQL/blob/main/images/eva_01.gif" alt="EvaSQL" width="200" height="200">
 
 # 🤖 ChatBot EvaSQL
 
