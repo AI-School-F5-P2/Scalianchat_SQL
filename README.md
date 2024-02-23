@@ -16,7 +16,6 @@
 - **Traducción a SQL**: Transforma consultas en lenguaje natural a consultas SQL comprensibles para la base de datos.
 - **Generación de Gráficos**: Crea gráficos interactivos a partir de los resultados de las consultas para una visualización clara de los datos.
 - **Soporte Multilingüe**: Accede al ChatBot en tu idioma preferido para una experiencia personalizada.
-- **Servicio de Voz**: Formula consultas y recibe respuestas utilizando tu voz.
 - **Versión Dockerizada**: Despliega el ChatBot fácilmente en cualquier entorno gracias a su versión dockerizada.
 - **Despliegue en Azure**: Accede al ChatBot desde cualquier dispositivo autorizado mediante un enlace o código QR.
 
