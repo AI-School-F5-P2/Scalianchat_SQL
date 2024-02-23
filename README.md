@@ -1,4 +1,6 @@
-# ChatBot EvaSQL
+![EvaSQL](https://github.com/AI-School-F5-P2/Scalianchat_SQL/blob/main/images/eva_01.gif)
+
+# 🤖 ChatBot EvaSQL
 
 ## Planteamiento
 
@@ -18,30 +20,51 @@
 
 ## Paso a Paso de Cómo Usarlo
 
-1. Clona o descarga el repositorio desde [GitHub](https://github.com/AI-School-F5-P2/Scalianchat_SQL.git).
-2. Instala las dependencias necesarias utilizando `pip install -r requirements.txt`.
-3. Ejecuta el script `str_interface.py` para iniciar la interfaz en Streamlit del ChatBot.
-4. Interactúa con el ChatBot escribiendo tus consultas en lenguaje natural o activando el micrófono para hablar.
-5. Visualiza los resultados de las consultas en forma de texto y/o gráficos interactivos.
+1. **Clona o descarga el repositorio desde [GitHub](https://github.com/AI-School-F5-P2/Scalianchat_SQL.git):**
+    ```bash
+    git clone https://github.com/AI-School-F5-P2/Scalianchat_SQL.git
+    ```
+    
+2. **Instala las dependencias necesarias:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+    
+3. **Crea el archivo .env con las API keys necesarias para establecer las conexiones con los servicios de Azure**
+   
+4. **Ejecuta el script para iniciar la interfaz en Streamlit del ChatBot:**
+    ```bash
+    streamlit run str_interface.py
+    ```
+
+5. **Interactua con el ChatBot escribiendo tus consultas en lenguaje natural o activando el micrófono para hablar.**
+
+6. **Visualiza los resultados de las consultas en forma de texto y/o gráficos interactivos.**
+
+## Documentación Completa del Proyecto
+
+[Notion ChatBot EvaSQL](https://www.notion.so/Proyecto-pedag-gico-SCALIAN-Chatbot-SQL-2d78c4730d9c4d04a59279494481afaa#893a7c8f740948cf87dcceb7c6b07b0b)
 
 ## Descripción de los Archivos
 
 - **data_cleaning.ipynb**: Notebook para la limpieza de datos del dataset original.
 - **azure_db.py**: Script para la creación de tablas en Azure SQL Database y carga de datos.
 - **json_emb_files_generator.ipynb**: Notebook para la generación de documentos JSON para Azure AI Search.
+- **azure_search.ipynb**: Configura, crea el índice en Azure AI Search y sube los documentos JSON generados.
 - **rag_openai.py**: Configuración de llamadas a la API de Azure OpenAI.
 - **str_interface.py**: Programa principal e interfaz en Streamlit.
 - **README.md**: Documentación detallada sobre el proyecto.
+- **requirements.txt**: Dependencias necesarias para la versión dockerizada.
 
 ## Autores
 
-[Karla Lamus Oliveros](https://www.linkedin.com/in/karla-lamus/)
+👩🏻‍💻 [Karla Lamus Oliveros](https://www.linkedin.com/in/karla-lamus/)
 
-[Miguel Mendoza Espinoza](https://www.linkedin.com/in/miguelmendozaespinoza9a010114a/)
+🧑🏽‍💻 [Miguel Mendoza Espinoza](https://www.linkedin.com/in/miguelmendozaespinoza9a010114a/)
 
-[Sandra Gómez S.](https://www.linkedin.com/in/sandragomezs/)
+👩🏻‍💻 [Sandra Gómez Santamaría](https://www.linkedin.com/in/sandragomezs/)
 
-[Ana Gómez Giraldo](https://www.linkedin.com/in/ana-milena-gomez-giraldo/?locale=es_ES)
+👩🏼‍💻 [Ana Gómez Giraldo](https://www.linkedin.com/in/ana-milena-gomez-giraldo/?locale=es_ES)
 
 
 ## Agradecimientos
