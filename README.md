@@ -1,4 +1,6 @@
-<img src="https://github.com/AI-School-F5-P2/Scalianchat_SQL/blob/main/images/eva_01.gif" alt="EvaSQL" width="200" height="200">
+<p align="center">
+    <img src="https://github.com/AI-School-F5-P2/Scalianchat_SQL/blob/main/images/eva_01.gif" alt="EvaSQL" width="200" height="200">
+</p>
 
 # 🤖 ChatBot EvaSQL
 
