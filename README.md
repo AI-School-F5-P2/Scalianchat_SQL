@@ -32,7 +32,7 @@
     pip install -r requirements.txt
     ```
     
-3. **Crea el archivo .env con las API keys necesarias para establecer las conexiones con los servicios de Azure**
+3. **Crea el archivo .env con las API keys necesarias para establecer las conexiones con los servicios de Azure.**
    
 4. **Ejecuta el script para iniciar la interfaz en Streamlit del ChatBot:**
     ```bash
