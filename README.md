@@ -45,7 +45,7 @@
 
 ## Documentación Completa del Proyecto
 
-[Notion ChatBot EvaSQL](https://www.notion.so/Proyecto-pedag-gico-SCALIAN-Chatbot-SQL-2d78c4730d9c4d04a59279494481afaa#893a7c8f740948cf87dcceb7c6b07b0b)
+[Notion ChatBot EvaSQL](https://past-alarm-18f.notion.site/Proyecto-pedag-gico-SCALIAN-Chatbot-SQL-2d78c4730d9c4d04a59279494481afaa?pvs=4)
 
 ## Descripción de los Archivos
 
@@ -58,7 +58,7 @@
 - **README.md**: Documentación detallada sobre el proyecto.
 - **requirements.txt**: Dependencias necesarias para la versión dockerizada.
 
-## Autores
+## Desarrolladores
 
 👩🏻‍💻 [Karla Lamus Oliveros](https://www.linkedin.com/in/karla-lamus/)
 
