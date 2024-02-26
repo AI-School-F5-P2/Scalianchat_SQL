@@ -47,6 +47,8 @@
 
 [Notion ChatBot EvaSQL](https://past-alarm-18f.notion.site/Proyecto-pedag-gico-SCALIAN-Chatbot-SQL-2d78c4730d9c4d04a59279494481afaa?pvs=4)
 
+[Presentación ChatBot EvaSQL](https://www.canva.com/design/DAF9bSfFLLY/o10dmMGBv_Ji5MPW1C5gJg/view?utm_content=DAF9bSfFLLY&utm_campaign=designshare&utm_medium=link&utm_source=editor)
+
 ## Descripción de los Archivos
 
 - **data_cleaning.ipynb**: Notebook para la limpieza de datos del dataset original.
